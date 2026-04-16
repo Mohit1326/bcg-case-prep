@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BCG Case Prep — Senior Associate 2</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">BCG Prep</div>
+      <div class="logo-sub">SA2 · India</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active" data-view="dashboard">
+        <span class="nav-icon">📊</span><span>Dashboard</span>
+      </div>
+      <div class="nav-item" data-view="practice">
+        <span class="nav-icon">🎯</span><span>Practice</span>
+      </div>
+      <div class="nav-item" data-view="library">
+        <span class="nav-icon">📚</span><span>Case Library</span>
+      </div>
+      <div class="nav-item" data-view="history">
+        <span class="nav-icon">🗂️</span><span>History</span>
+      </div>
+      <div class="nav-item" data-view="settings">
+        <span class="nav-icon">⚙️</span><span>Settings</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div id="proxy-status" class="proxy-badge offline">Proxy: checking...</div>
+    </div>
+  </aside>
+
+  <!-- ── Views ── -->
+  <main class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div id="view-dashboard" class="view">
+      <div class="view-header">
+        <div class="view-title">Your Progress</div>
+        <div class="view-subtitle">BCG India · Senior Associate 2 · Generalist Track</div>
+      </div>
+      <div class="content-area">
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-value" id="total-cases">0</div>
+            <div class="stat-label">Cases Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="avg-score">—</div>
+            <div class="stat-label">Average Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="recent-score">—</div>
+            <div class="stat-label">Last Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="streak-count">0</div>
+            <div class="stat-label">Day Streak 🔥</div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div>
+            <div class="card chart-card" style="margin-bottom:16px;">
+              <div class="card-title">Score Trend — Last 10 Sessions</div>
+              <canvas id="trend-chart"></canvas>
+              <div class="chart-empty" style="display:none;">Complete 2+ sessions to see your trend.</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Recent Sessions</div>
+              <div id="recent-sessions"><p class="empty-state">No sessions yet. Go to Practice to start your first case!</p></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card chart-card radar-result-card">
+              <div class="card-title">Average Performance Radar</div>
+              <canvas id="weakness-radar"></canvas>
+              <div class="chart-empty" style="font-size:11px;color:var(--text-muted);text-align:center;padding-top:8px;">BCG SA2 bar = 7.0 on all dimensions</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Performance by Case Type</div>
+              <div id="case-type-perf"><p class="empty-state">Complete cases to see breakdown</p></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── PRACTICE ── -->
+    <div id="view-practice" class="view">
+
+      <!-- Case Select -->
+      <div id="case-select-screen">
+        <div class="case-select-title">Ready to practice?</div>
+        <div class="case-select-sub">Choose a case type for a random case, or pick one from the library.</div>
+
+        <!-- Time target input -->
+        <div class="time-target-row">
+          <span class="time-target-label">⏱ Target time</span>
+          <div class="time-target-options">
+            <button class="time-opt-btn active" data-mins="35">35 min <span class="time-opt-sub">BCG standard</span></button>
+            <button class="time-opt-btn" data-mins="40">40 min <span class="time-opt-sub">relaxed</span></button>
+            <button class="time-opt-btn" data-mins="25">25 min <span class="time-opt-sub">pressure drill</span></button>
+            <button class="time-opt-btn" data-mins="custom">
+              <input id="custom-time-input" type="number" min="10" max="90" placeholder="custom" style="width:52px;background:transparent;border:none;color:inherit;font-size:12px;text-align:center;outline:none;" onclick="event.stopPropagation()" />
+              <span class="time-opt-sub">min</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="quick-start-grid">
+          <button class="quick-start-btn" data-type="profitability">
+            <span class="qs-icon">📊</span>
+            <span>Profitability</span>
+          </button>
+          <button class="quick-start-btn" data-type="market_entry">
+            <span class="qs-icon">🌍</span>
+            <span>Market Entry</span>
+          </button>
+          <button class="quick-start-btn" data-type="ma">
+            <span class="qs-icon">🤝</span>
+            <span>M&amp;A / Due Diligence</span>
+          </button>
+          <button class="quick-start-btn" data-type="growth">
+            <span class="qs-icon">🚀</span>
+            <span>Growth Strategy</span>
+          </button>
+          <button class="quick-start-btn" data-type="operations">
+            <span class="qs-icon">⚙️</span>
+            <span>Operations</span>
+          </button>
+          <button class="quick-start-btn" data-type="random" onclick="(()=>{const c=window.CASES;const r=c[Math.floor(Math.random()*c.length)];window.Interview.startCase(r);})()">
+            <span class="qs-icon">🎲</span>
+            <span>Random Case</span>
+          </button>
+        </div>
+        <button class="library-link-btn" onclick="showView('library')">Browse full case library →</button>
+      </div>
+
+      <!-- Interview Active -->
+      <div id="interview-active">
+        <!-- Stage Progress Bar -->
+        <div class="stage-bar">
+          <div class="stage-step" id="stage-setup">
+            <div class="stage-dot">1</div>
+            <span class="stage-name">Setup</span>
+            <div class="stage-connector"></div>
+          </div>
+          <div class="stage-step" id="stage-clarifying">
+            <div class="stage-dot">2</div>
+            <span class="stage-name">Clarifying</span>
+            <div class="stage-connector"></div>
+          </div>
+          <div class="stage-step" id="stage-structuring">
+            <div class="stage-dot">3</div>
+            <span class="stage-name">Structure</span>
+            <div class="stage-connector"></div>
+          </div>
+          <div class="stage-step" id="stage-analysis">
+            <div class="stage-dot">4</div>
+            <span class="stage-name">Analysis</span>
+            <div class="stage-connector"></div>
+          </div>
+          <div class="stage-step" id="stage-synthesis">
+            <div class="stage-dot">5</div>
+            <span class="stage-name">Synthesis</span>
+          </div>
+        </div>
+
+        <!-- Timer Bar -->
+        <div class="timer-bar" id="timer-bar">
+          <div class="timer-track">
+            <div class="timer-fill" id="timer-fill"></div>
+            <div class="timer-stage-markers" id="timer-stage-markers"></div>
+          </div>
+          <div class="timer-display" id="timer-display">0:00</div>
+          <div class="timer-target" id="timer-target">/ 35:00</div>
+          <div class="timer-status" id="timer-status"></div>
+        </div>
+
+        <!-- Case Meta Bar -->
+        <div class="case-meta-bar">
+          <div>
+            <div class="case-meta-title" id="current-stage-label">Case Setup</div>
+            <div class="case-meta-type"></div>
+          </div>
+          <div class="stage-hint" id="stage-hint"></div>
+        </div>
+
+        <!-- Transcript -->
+        <div class="transcript-wrap" id="transcript-feed">
+          <!-- messages injected here -->
+        </div>
+
+        <!-- Typing Indicator -->
+        <div style="padding:0 20px 4px;">
+          <div id="typing-indicator">
+            <div class="typing-dots">
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+            </div>
+            <span style="font-size:12px;color:var(--text-muted);">Interviewer is typing...</span>
+          </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+          <div class="input-row">
+            <div class="input-text-wrap">
+              <textarea id="input-text" rows="2" placeholder="Type your response... or hold Space to use voice (Chrome)"></textarea>
+              <span id="interim-text"></span>
+            </div>
+            <div class="input-btns">
+              <button id="send-btn" title="Send (Enter)">➤</button>
+              <button id="mic-btn" title="Toggle mic (Space)">
+                <div id="mic-indicator"></div>
+              </button>
+            </div>
+          </div>
+          <div class="action-row">
+            <button id="advance-stage-btn" class="btn-secondary" style="font-size:12px;">→ Next Stage</button>
+            <button id="end-case-btn" class="btn-primary">✓ End &amp; Score Case</button>
+            <button id="new-case-btn" class="btn-secondary">← New Case</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div id="results-panel">
+
+        <!-- Header — always visible -->
+        <div class="results-header">
+          <div>
+            <div class="results-title" id="results-case-title">Case Complete</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+              <span id="session-duration">—</span> · Scored by Claude Sonnet
+            </div>
+          </div>
+          <span id="verdict-badge">—</span>
+          <div class="timing-result-wrap" id="timing-result-wrap" style="display:none;">
+            <div class="timing-result-time" id="timing-result-time">—</div>
+            <div class="timing-result-label" id="timing-result-label">vs 35 min target</div>
+            <div class="timing-result-badge" id="timing-result-badge"></div>
+          </div>
+          <div class="overall-score-wrap">
+            <div id="overall-score">—</div>
+            <div class="overall-label">Overall / 10</div>
+          </div>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="results-tabs">
+          <button class="results-tab-btn active" data-tab="scores" onclick="switchResultsTab('scores')">📊 My Score &amp; Feedback</button>
+          <button class="results-tab-btn" data-tab="debrief" onclick="switchResultsTab('debrief')">
+            🧠 Solution Debrief
+            <span id="debrief-loading-badge" style="display:none;font-size:10px;background:rgba(255,152,0,0.2);color:#ff9800;padding:2px 7px;border-radius:10px;margin-left:6px;">generating...</span>
+          </button>
+        </div>
+
+        <!-- ── TAB: SCORES ── -->
+        <div class="results-tab-pane active" data-pane="scores">
+          <div class="results-grid">
+            <div class="card score-bars-card">
+              <div class="card-title">Dimension Scores · BCG SA2 bar = 7.0</div>
+              <div class="score-dim">
+                <div class="score-dim-header"><span class="score-dim-name">Structuring</span><span class="score-dim-num" id="score-num-structuring">—</span></div>
+                <div class="score-bar-track"><div class="score-bar-fill" id="score-bar-structuring" style="width:0%"></div><div class="score-benchmark-line"></div></div>
+                <div class="score-feedback" id="feedback-structuring"></div>
+              </div>
+              <div class="score-dim">
+                <div class="score-dim-header"><span class="score-dim-name">Analytics</span><span class="score-dim-num" id="score-num-analytics">—</span></div>
+                <div class="score-bar-track"><div class="score-bar-fill" id="score-bar-analytics" style="width:0%"></div><div class="score-benchmark-line"></div></div>
+                <div class="score-feedback" id="feedback-analytics"></div>
+              </div>
+              <div class="score-dim">
+                <div class="score-dim-header"><span class="score-dim-name">Synthesis</span><span class="score-dim-num" id="score-num-synthesis">—</span></div>
+                <div class="score-bar-track"><div class="score-bar-fill" id="score-bar-synthesis" style="width:0%"></div><div class="score-benchmark-line"></div></div>
+                <div class="score-feedback" id="feedback-synthesis"></div>
+              </div>
+              <div class="score-dim">
+                <div class="score-dim-header"><span class="score-dim-name">Communication</span><span class="score-dim-num" id="score-num-communication">—</span></div>
+                <div class="score-bar-track"><div class="score-bar-fill" id="score-bar-communication" style="width:0%"></div><div class="score-benchmark-line"></div></div>
+                <div class="score-feedback" id="feedback-communication"></div>
+              </div>
+            </div>
+            <div class="card radar-result-card">
+              <div class="card-title">Score Radar</div>
+              <canvas id="radar-chart-result" style="max-height:260px;"></canvas>
+            </div>
+          </div>
+
+          <div class="insights-grid">
+            <div class="insight-card">
+              <h4>✅ Strengths</h4>
+              <ul id="strengths-list"></ul>
+            </div>
+            <div class="insight-card">
+              <h4>🔧 Development Areas</h4>
+              <ul id="development-list"></ul>
+            </div>
+            <div class="insight-card highlight">
+              <h4>⚡ Key Moment</h4>
+              <p id="key-moment"></p>
+            </div>
+            <div class="insight-card">
+              <h4>📏 Vs BCG SA2 Bar</h4>
+              <p id="bcg-comparison"></p>
+            </div>
+            <div class="insight-card" style="grid-column:1/-1;border-color:var(--green);">
+              <h4>🎯 #1 Focus for Next Round</h4>
+              <p id="next-focus" style="color:var(--text);font-size:14px;font-weight:500;"></p>
+            </div>
+            <div class="insight-card" style="border-color:rgba(33,150,243,0.4);">
+              <h4>📈 Progression vs Last Session</h4>
+              <p id="progression-note"></p>
+            </div>
+            <div class="insight-card" style="border-color:rgba(255,152,0,0.4);">
+              <h4>🏋️ Today's Drill (15 min)</h4>
+              <p id="drill-suggestion" style="color:var(--text);"></p>
+            </div>
+            <div class="insight-card" id="timing-insight-card" style="display:none;border-color:rgba(33,150,243,0.4);grid-column:1/-1;">
+              <h4>⏱ Time Analysis</h4>
+              <div id="timing-stage-breakdown"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── TAB: SOLUTION DEBRIEF ── -->
+        <div class="results-tab-pane" data-pane="debrief">
+
+          <div id="debrief-spinner" class="debrief-spinner">
+            <div class="debrief-spinner-dots"><span></span><span></span><span></span></div>
+            <p>Generating your full solution debrief with Claude Sonnet…</p>
+          </div>
+
+          <div id="debrief-content" style="display:none;display:flex;flex-direction:column;gap:20px;">
+
+            <!-- Model Answer -->
+            <div class="debrief-card debrief-answer-card">
+              <div class="debrief-card-title">💡 Model Answer</div>
+              <p id="debrief-model-answer" class="debrief-answer-text"></p>
+            </div>
+
+            <!-- You vs Ideal -->
+            <div class="debrief-card" style="border-color:rgba(33,150,243,0.35);">
+              <div class="debrief-card-title">🔍 Your Approach vs Ideal Path</div>
+              <p id="debrief-vs-ideal" style="font-size:13px;color:var(--text-dim);line-height:1.7;"></p>
+            </div>
+
+            <!-- Step-by-step walkthrough -->
+            <div class="debrief-card">
+              <div class="debrief-card-title">🪜 Step-by-Step Solution Walkthrough</div>
+              <div id="debrief-walkthrough" class="debrief-walkthrough"></div>
+            </div>
+
+            <!-- Issue Tree -->
+            <div class="debrief-card">
+              <div class="debrief-card-title">🌳 Issue Tree / Value Chain</div>
+              <div id="debrief-issue-tree" class="debrief-tree"></div>
+            </div>
+
+            <!-- Framework Explained -->
+            <div class="debrief-card" style="border-color:rgba(255,152,0,0.35);">
+              <div class="debrief-card-title">📐 Framework Explained</div>
+              <div id="debrief-framework"></div>
+            </div>
+
+            <!-- Key Numbers -->
+            <div class="debrief-card">
+              <div class="debrief-card-title">🔢 Key Numbers to Know</div>
+              <div id="debrief-numbers" class="debrief-numbers"></div>
+            </div>
+
+            <!-- Cross-Application -->
+            <div class="debrief-card" style="border-color:rgba(156,39,176,0.35);">
+              <div class="debrief-card-title">♻️ Cross-Application to Other Case Types</div>
+              <div id="debrief-cross" class="debrief-cross-grid"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Footer actions -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:4px;">
+          <button class="btn-primary" onclick="(()=>{document.getElementById('results-panel').style.display='none';document.getElementById('case-select-screen').style.display='flex';})()">Practice Another Case</button>
+          <button class="btn-secondary" onclick="showView('dashboard')">View Dashboard</button>
+          <button class="btn-secondary" onclick="showView('history')">View History</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── LIBRARY ── -->
+    <div id="view-library" class="view">
+      <div class="view-header">
+        <div class="view-title">Case Library</div>
+        <div class="view-subtitle" id="library-subtitle">35 cases across 5 archetypes (BCG India + CIC, Darden, DayOne, Fuqua, ICC books). AI can generate more.</div>
+      </div>
+      <div class="content-area">
+
+        <div class="ai-gen-card">
+          <div class="ai-gen-title">✨ Generate AI Case</div>
+          <div class="ai-gen-row">
+            <select id="gen-type">
+              <option value="profitability">Profitability</option>
+              <option value="market_entry">Market Entry</option>
+              <option value="ma">M&amp;A</option>
+              <option value="growth">Growth Strategy</option>
+              <option value="operations">Operations</option>
+            </select>
+            <select id="gen-industry">
+              <option value="FMCG">FMCG</option>
+              <option value="Technology">Technology</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Financial Services">Financial Services</option>
+              <option value="Automotive">Automotive</option>
+              <option value="Retail">Retail</option>
+              <option value="Telecom">Telecom</option>
+              <option value="Energy">Energy</option>
+              <option value="Logistics">Logistics</option>
+              <option value="Education">Education</option>
+            </select>
+            <select id="gen-difficulty">
+              <option value="Easy">Easy</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
+            <button id="generate-case-btn" class="btn-primary">Generate Case</button>
+          </div>
+        </div>
+
+        <div class="library-controls">
+          <div class="filter-group">
+            <button class="filter-btn active" data-group="type" data-value="all">All Types</button>
+            <button class="filter-btn" data-group="type" data-value="profitability">📊 Profitability</button>
+            <button class="filter-btn" data-group="type" data-value="market_entry">🌍 Market Entry</button>
+            <button class="filter-btn" data-group="type" data-value="ma">🤝 M&A</button>
+            <button class="filter-btn" data-group="type" data-value="growth">🚀 Growth</button>
+            <button class="filter-btn" data-group="type" data-value="operations">⚙️ Operations</button>
+          </div>
+          <div class="filter-group">
+            <button class="filter-btn active" data-group="diff" data-value="all">All Levels</button>
+            <button class="filter-btn" data-group="diff" data-value="Easy">Easy</button>
+            <button class="filter-btn" data-group="diff" data-value="Medium">Medium</button>
+            <button class="filter-btn" data-group="diff" data-value="Hard">Hard</button>
+          </div>
+        </div>
+
+        <div id="case-grid" class="case-grid">
+          <!-- injected by dashboard.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY ── -->
+    <div id="view-history" class="view">
+      <div class="view-header">
+        <div class="view-title">Case History</div>
+        <div class="view-subtitle">Every session recorded. Click any case to review the full transcript and feedback.</div>
+      </div>
+      <div class="content-area">
+        <div id="history-list"></div>
+        <!-- Transcript modal -->
+        <div id="transcript-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;overflow-y:auto;padding:24px;">
+          <div style="max-width:780px;margin:0 auto;background:#1e2d1a;border:1px solid rgba(0,166,81,0.2);border-radius:16px;padding:28px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+              <div>
+                <div id="modal-case-title" style="font-size:17px;font-weight:700;color:#e8f0e4;"></div>
+                <div id="modal-case-meta" style="font-size:12px;color:#5a7054;margin-top:4px;"></div>
+              </div>
+              <button onclick="document.getElementById('transcript-modal').style.display='none'"
+                style="background:#243320;border:1px solid rgba(0,166,81,0.2);color:#8fa887;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;">✕ Close</button>
+            </div>
+            <!-- Score summary -->
+            <div id="modal-scores" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;"></div>
+            <!-- Tabs -->
+            <div style="display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid rgba(0,166,81,0.15);padding-bottom:12px;flex-wrap:wrap;">
+              <button class="modal-tab-btn active" data-tab="transcript" onclick="switchModalTab('transcript')" style="background:rgba(0,166,81,0.15);border:1px solid rgba(0,166,81,0.3);color:#00a651;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">📝 Transcript</button>
+              <button class="modal-tab-btn" data-tab="feedback" onclick="switchModalTab('feedback')" style="background:#243320;border:1px solid rgba(0,166,81,0.15);color:#8fa887;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">📊 Feedback</button>
+              <button class="modal-tab-btn" data-tab="debrief" onclick="switchModalTab('debrief')" style="background:#243320;border:1px solid rgba(0,166,81,0.15);color:#8fa887;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">🧠 Solution Debrief</button>
+            </div>
+            <div id="modal-pane-transcript" style="font-size:13px;line-height:1.8;color:#c8d8c4;white-space:pre-wrap;max-height:60vh;overflow-y:auto;"></div>
+            <div id="modal-pane-feedback" style="display:none;max-height:60vh;overflow-y:auto;"></div>
+            <div id="modal-pane-debrief" style="display:none;max-height:60vh;overflow-y:auto;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div id="view-settings" class="view">
+      <div class="view-header">
+        <div class="view-title">Settings</div>
+        <div class="view-subtitle">Configure your API key and preferences.</div>
+      </div>
+      <div class="content-area">
+
+        <div class="settings-card">
+          <h3>Profile</h3>
+          <div class="field">
+            <label>Your Name</label>
+            <input type="text" id="settings-name" placeholder="e.g. Mohit" />
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3>Anthropic API Key</h3>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">
+            Required for AI interviewer and scoring. Your key is stored locally in your browser only. Get your key at <strong>console.anthropic.com</strong>.
+          </p>
+          <div class="field">
+            <label>Current Key</label>
+            <input type="text" id="settings-key" readonly placeholder="No key set" style="font-family:monospace;opacity:0.6;" />
+          </div>
+          <div class="field">
+            <label>New Key (paste here to update)</label>
+            <input type="password" id="settings-key-real" placeholder="sk-ant-api03-..." />
+            <div class="field-hint">Your key never leaves your device. It's sent directly to the local proxy which forwards it to Anthropic.</div>
+          </div>
+          <div class="settings-actions">
+            <button id="save-settings" class="btn-primary">Save Settings</button>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3>How it works</h3>
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.8;">
+            This app calls the Anthropic API directly from your browser — <strong style="color:var(--text)">no server or proxy needed.</strong><br>
+            Your API key is stored only in your browser's localStorage and sent directly to Anthropic over HTTPS.<br><br>
+            <strong style="color:var(--green)">Live interviewer:</strong> Claude Haiku (fast, &lt;1s responses)<br>
+            <strong style="color:var(--green)">Scoring:</strong> Claude Sonnet (deep feedback after each session)
+          </p>
+        </div>
+
+        <div class="settings-card">
+          <h3>Data Management</h3>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">All session data is stored locally in your browser's localStorage.</p>
+          <button id="clear-data" class="btn-danger">Clear All Session History</button>
+        </div>
+
+        <div class="settings-card">
+          <h3>About This Tool</h3>
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.8;">
+            Built for BCG India Senior Associate 2 interviews.<br>
+            <strong>Scoring model:</strong> Claude Sonnet 4.6<br>
+            <strong>Live interviewer:</strong> Claude Haiku 4.5 (fast responses)<br>
+            <strong>Dimensions scored:</strong> Structuring · Analytics · Synthesis · Communication<br>
+            <strong>BCG SA2 bar:</strong> 7.0+ on all 4 dimensions
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/cases.js"></script>
+<script src="js/cases_books.js"></script>
+<script src="js/app.js"></script>
+<script src="js/timer.js"></script>
+<script src="js/interview.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/dashboard.js"></script>
+<script>
+  // Initial library render
+  document.addEventListener('DOMContentLoaded', () => {
+    window.mergeCases && window.mergeCases();
+    renderLibrary();
+    // Also sync proxy status to settings page
+    const statusEl = document.getElementById('proxy-status-settings');
+    if (statusEl) {
+      const main = document.getElementById('proxy-status');
+      const update = () => { if (main && statusEl) statusEl.className = main.className; statusEl && main && (statusEl.textContent = main.textContent); };
+      update();
+      setInterval(update, 5000);
+    }
+  });
+</script>
+</body>
+</html>
