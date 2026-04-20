@@ -451,6 +451,7 @@ After their response, say: "Thank you. That concludes our case today."`,
         caseContext: state.caseObj.context,
         caseId: state.caseObj.id,
         timingSummary,
+        retestFor: state.caseObj._retestFor || null,
       };
       Storage.saveSession(session);
       window.Scoring.displayResults(result, session);
@@ -579,3 +580,26 @@ After their response, say: "Thank you. That concludes our case today."`,
 
   return { startCase, STAGE_LABELS, STAGES };
 })();
+
+// ── Targeted Practice (called from Loop Panel & Focus Banner) ─────────────────
+window.startTargetedCase = function(dimension) {
+  const DIM_CASE_TYPES = {
+    structuring:   ['market_entry', 'growth'],
+    analytics:     ['profitability', 'operations'],
+    synthesis:     ['ma', 'growth'],
+    communication: ['profitability', 'market_entry'],
+  };
+  const types = DIM_CASE_TYPES[dimension] || [];
+  const allCases = window.CASES || [];
+  const pool = types.length ? allCases.filter(c => types.includes(c.type)) : allCases;
+  const src  = pool.length ? pool : allCases;
+  if (!src.length) { showToast('No cases loaded yet.', 'error'); return; }
+  // Clone so we don't mutate the library case permanently
+  const pick = Object.assign({}, src[Math.floor(Math.random() * src.length)]);
+  pick._retestFor = dimension;
+  // Navigate to interview
+  document.getElementById('results-panel').style.display = 'none';
+  document.getElementById('case-select-screen').style.display = 'none';
+  window.Interview.startCase(pick);
+  showToast(`Starting ${dimension}-focused case — good luck!`);
+};

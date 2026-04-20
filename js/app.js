@@ -36,6 +36,7 @@ window.showView = function(viewId) {
   if (viewId === 'dashboard') window.renderDashboard && window.renderDashboard();
   if (viewId === 'library')   window.renderLibrary  && window.renderLibrary();
   if (viewId === 'history')   window.renderHistory  && window.renderHistory();
+  if (viewId === 'practice')  window.showFocusBanner && window.showFocusBanner();
 };
 
 // ── API Call (direct to Anthropic — no proxy) ─────────────────────────────────

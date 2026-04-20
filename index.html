@@ -104,6 +104,15 @@
         <div class="case-select-title">Ready to practice?</div>
         <div class="case-select-sub">Choose a case type for a random case, or pick one from the library.</div>
 
+        <!-- Focus Banner — shows top gap from last session -->
+        <div id="focus-banner" class="focus-banner" style="display:none;">
+          <div class="focus-banner-left">
+            <span class="focus-banner-tag">📌 Continue your plan</span>
+            <div class="focus-banner-desc" id="focus-banner-desc">—</div>
+          </div>
+          <button class="focus-banner-btn" id="focus-banner-btn">Start targeted practice →</button>
+        </div>
+
         <!-- Time target input -->
         <div class="time-target-row">
           <span class="time-target-label">⏱ Target time</span>
@@ -335,6 +344,10 @@
               <div id="timing-stage-breakdown"></div>
             </div>
           </div>
+
+          <!-- 🔄 Close the Loop Panel -->
+          <div id="loop-panel" style="display:none;"></div>
+
         </div>
 
         <!-- ── TAB: SOLUTION DEBRIEF ── -->

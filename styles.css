@@ -395,6 +395,49 @@ html, body { height: 100%; font-family: 'Inter', system-ui, -apple-system, sans-
   border-radius: 5px; margin-top: 2px;
 }
 
+/* ─── Focus Banner (case select screen) ─────────────────────────────────── */
+.focus-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  background: rgba(255,152,0,0.07); border: 1px solid rgba(255,152,0,0.3);
+  border-radius: 12px; padding: 12px 18px; margin-bottom: 4px; flex-wrap: wrap;
+}
+.focus-banner-left { display: flex; flex-direction: column; gap: 3px; }
+.focus-banner-tag { font-size: 10px; font-weight: 700; color: #ff9800; text-transform: uppercase; letter-spacing: 0.6px; }
+.focus-banner-desc { font-size: 13px; color: var(--text); font-weight: 500; }
+.focus-banner-btn {
+  background: rgba(255,152,0,0.15); border: 1px solid rgba(255,152,0,0.4);
+  color: #ff9800; font-size: 12px; font-weight: 700; padding: 7px 14px;
+  border-radius: 8px; cursor: pointer; white-space: nowrap; transition: all 0.15s;
+}
+.focus-banner-btn:hover { background: rgba(255,152,0,0.25); }
+
+/* ─── Close the Loop Panel (results tab) ────────────────────────────────── */
+.loop-panel { display: flex; flex-direction: column; gap: 14px; padding: 20px; background: var(--surface); border: 1px solid rgba(33,150,243,0.25); border-radius: 14px; margin-top: 4px; }
+.loop-panel-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.loop-panel-sub { font-size: 13px; color: var(--text-dim); margin-top: -8px; }
+.loop-gaps { display: flex; flex-direction: column; gap: 10px; }
+.loop-gap-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;
+}
+.loop-gap-card.primary-gap { border-color: rgba(239,83,80,0.4); background: rgba(239,83,80,0.05); }
+.loop-gap-header { display: flex; align-items: flex-start; gap: 10px; }
+.loop-gap-icon { font-size: 22px; line-height: 1; }
+.loop-gap-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.loop-gap-score { font-size: 12px; color: #ef5350; margin-top: 1px; }
+.loop-primary-badge { margin-left: auto; font-size: 10px; font-weight: 700; background: rgba(239,83,80,0.15); color: #ef5350; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+.loop-gap-feedback { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+.loop-gap-drill { font-size: 12px; color: var(--text-dim); background: var(--surface3); border-radius: 6px; padding: 8px 10px; line-height: 1.5; }
+.loop-drill-label { font-weight: 700; color: #ff9800; }
+.loop-start-btn {
+  align-self: flex-start; background: var(--green-dim); border: 1px solid rgba(0,166,81,0.35);
+  color: var(--green); font-size: 12px; font-weight: 700; padding: 7px 14px;
+  border-radius: 8px; cursor: pointer; transition: all 0.15s;
+}
+.loop-start-btn:hover { background: rgba(0,166,81,0.2); }
+.loop-all-clear { font-size: 13px; color: var(--green); font-weight: 600; }
+.loop-retest-row { display: flex; align-items: center; gap: 12px; padding-top: 4px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+
 /* ─── Time Target Row (case select screen) ──────────────────────────────── */
 .time-target-row {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;

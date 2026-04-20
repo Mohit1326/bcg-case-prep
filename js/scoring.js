@@ -10,7 +10,8 @@ window.Scoring = (function() {
     if (sessions.length === 0) return '';
     const lines = ['CANDIDATE HISTORY (last sessions):'];
     sessions.forEach((s, i) => {
-      lines.push(`Session ${i+1} — ${s.caseTitle}: S=${s.scores?.structuring??'?'} A=${s.scores?.analytics??'?'} Sy=${s.scores?.synthesis??'?'} C=${s.scores?.communication??'?'} | Focus: "${s.feedback?.nextFocus??'N/A'}"`);
+      const retestTag = s.retestFor ? ` [RETEST targeting ${s.retestFor}]` : '';
+      lines.push(`Session ${i+1} — ${s.caseTitle}${retestTag}: S=${s.scores?.structuring??'?'} A=${s.scores?.analytics??'?'} Sy=${s.scores?.synthesis??'?'} C=${s.scores?.communication??'?'} | Focus: "${s.feedback?.nextFocus??'N/A'}"`);
     });
     if (sessions.length >= 2) {
       lines.push('TRENDS:');
@@ -30,8 +31,13 @@ window.Scoring = (function() {
   async function scoreSession(caseObj, fullTranscript) {
     const progressionContext = buildProgressionContext();
 
+    // If this is a targeted retest, add explicit comparison instruction
+    const retestContext = caseObj._retestFor
+      ? `\nRETEST SESSION: Candidate specifically practiced to improve their ${caseObj._retestFor}. In your dimensionFeedback for ${caseObj._retestFor}, explicitly state whether they improved vs. prior sessions, and by how much. In progressionNote, call out the retest result directly.`
+      : '';
+
     const systemPrompt = `You are a senior BCG India partner evaluating a SA2 candidate.
-Feedback must be SPECIFIC, HONEST, ACTIONABLE — cite transcript evidence.
+Feedback must be SPECIFIC, HONEST, ACTIONABLE — cite transcript evidence.${retestContext}
 
 STRUCTURING (0-10): MECE issue trees, hypothesis-driven framing, logical prioritisation
   9-10: Crisp MECE tree, strong upfront hypothesis, correct prioritisation
@@ -240,10 +246,80 @@ Return this exact JSON:
       CaseTimer.displayTimingResults(session.timingSummary);
     }
 
+    // Render gap action plan
+    displayLoopActions(result);
+
     showToast('Session scored! Generating solution debrief...');
 
     // Switch to score tab by default
     switchResultsTab('scores');
+  }
+
+  // ── Close the Loop — Gap Action Plan ──────────────────────────────────────
+  function displayLoopActions(result) {
+    const panel = document.getElementById('loop-panel');
+    if (!panel) return;
+
+    const DIM_LABELS = { structuring: 'Structuring', analytics: 'Analytics', synthesis: 'Synthesis', communication: 'Communication' };
+    const DIM_ICONS  = { structuring: '🏗️', analytics: '📊', synthesis: '💡', communication: '🗣️' };
+    const DIM_DRILLS = {
+      structuring:   'State your hypothesis upfront before laying out any framework. Draw a 3-bucket MECE tree on paper, label each branch with a hypothesis, then speak it aloud.',
+      analytics:     'Pick a market sizing question and work it entirely in numbers — no hand-waving. Show every step: segment → penetration → price → volume → total.',
+      synthesis:     'Practice the "Situation → Root Cause → Recommendation → Risk" format in under 60 seconds. Record yourself and check: is the insight crisp or generic?',
+      communication: 'Record your next answer. Count filler words (um, uh, so, like). Add explicit signposting: "I\'ll cover three areas — first X, second Y, third Z."',
+    };
+    const DIM_CASE_TYPES = {
+      structuring:   ['market_entry', 'growth'],
+      analytics:     ['profitability', 'operations'],
+      synthesis:     ['ma', 'growth'],
+      communication: ['profitability', 'market_entry'],
+    };
+
+    const gaps = DIMS.filter(d => result.scores[d] < BENCHMARK[d])
+                     .sort((a, b) => result.scores[a] - result.scores[b]);
+
+    panel.style.display = 'block';
+
+    if (gaps.length === 0) {
+      panel.innerHTML = `
+        <div class="loop-panel">
+          <div class="loop-panel-title">🎯 Above Bar on All Dimensions!</div>
+          <p class="loop-all-clear">All 4 scores ≥ 7.0 — you're in BCG SA2 hire territory. Keep drilling for consistency under pressure.</p>
+          <button class="loop-start-btn" onclick="(()=>{document.getElementById('results-panel').style.display='none';document.getElementById('case-select-screen').style.display='flex';window.showFocusBanner&&window.showFocusBanner();})()">Practice Another Case →</button>
+        </div>`;
+      return;
+    }
+
+    panel.innerHTML = `
+      <div class="loop-panel">
+        <div class="loop-panel-title">🔄 Close the Loop — Your Gap Action Plan</div>
+        <p class="loop-panel-sub">Below BCG SA2 bar on ${gaps.length} dimension${gaps.length > 1 ? 's' : ''}. Targeted practice below.</p>
+        <div class="loop-gaps">
+          ${gaps.map((dim, i) => `
+            <div class="loop-gap-card ${i === 0 ? 'primary-gap' : ''}">
+              <div class="loop-gap-header">
+                <span class="loop-gap-icon">${DIM_ICONS[dim]}</span>
+                <div>
+                  <div class="loop-gap-name">${DIM_LABELS[dim]}</div>
+                  <div class="loop-gap-score">${result.scores[dim].toFixed(1)}/10 — need +${(BENCHMARK[dim] - result.scores[dim]).toFixed(1)} to clear bar</div>
+                </div>
+                ${i === 0 ? '<span class="loop-primary-badge">Top Priority</span>' : ''}
+              </div>
+              <p class="loop-gap-feedback">${result.dimensionFeedback?.[dim] || ''}</p>
+              <div class="loop-gap-drill"><span class="loop-drill-label">⚡ Fix this now:</span> ${DIM_DRILLS[dim]}</div>
+              <button class="loop-start-btn" onclick="window.startTargetedCase('${dim}')">
+                Practice ${DIM_LABELS[dim]}-focused Case →
+              </button>
+            </div>
+          `).join('')}
+        </div>
+        <div class="loop-retest-row">
+          <span style="font-size:12px;color:var(--text-muted);">Ready for a full retest on your #1 gap?</span>
+          <button class="btn-secondary" style="font-size:12px;" onclick="window.startTargetedCase('${gaps[0]}')">
+            Retest: ${DIM_LABELS[gaps[0]]}-focused Case →
+          </button>
+        </div>
+      </div>`;
   }
 
   // ── Display Debrief ────────────────────────────────────────────────────────

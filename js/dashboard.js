@@ -278,6 +278,39 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// ── Focus Banner (shown on case-select screen) ────────────────────────────────
+window.showFocusBanner = function() {
+  const banner = document.getElementById('focus-banner');
+  const descEl = document.getElementById('focus-banner-desc');
+  const btnEl  = document.getElementById('focus-banner-btn');
+  if (!banner) return;
+
+  const sessions = Storage.getSessions();
+  if (!sessions.length) { banner.style.display = 'none'; return; }
+
+  const last = sessions[0];
+  if (!last.scores) { banner.style.display = 'none'; return; }
+
+  const DIMS = ['structuring', 'analytics', 'synthesis', 'communication'];
+  const gaps = DIMS.filter(d => (last.scores[d] || 0) < 7.0)
+                   .sort((a, b) => last.scores[a] - last.scores[b]);
+
+  if (!gaps.length) { banner.style.display = 'none'; return; }
+
+  const dim = gaps[0];
+  const DIM_LABELS = { structuring: 'Structuring', analytics: 'Analytics', synthesis: 'Synthesis', communication: 'Communication' };
+  const DIM_DESC   = {
+    structuring:   'Work on MECE hypothesis-first frameworks',
+    analytics:     'Sharpen quant reasoning & math confidence',
+    synthesis:     'Practice crisp Situation → Insight → Action recommendations',
+    communication: 'Cut filler words, add signposting & executive presence',
+  };
+
+  banner.style.display = 'flex';
+  if (descEl) descEl.textContent = `${DIM_LABELS[dim]} (${last.scores[dim].toFixed(1)}/10 last session) — ${DIM_DESC[dim]}`;
+  if (btnEl)  btnEl.onclick = () => window.startTargetedCase(dim);
+};
+
 // ── Case History Repository ────────────────────────────────────────────────────
 window.renderHistory = function() {
   const sessions = Storage.getSessions();
