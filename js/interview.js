@@ -165,6 +165,85 @@ window.Interview = (function() {
     return { init, start, stop, reset, isActive, supported };
   })();
 
+  // ── Interviewer Voice (Text-to-Speech) ───────────────────────────────────
+  const Voice = (function() {
+    let enabled = true;
+    let speaking = false;
+    let preferredVoice = null;
+
+    // Pick the best available voice — prefer a clear English voice
+    function pickVoice() {
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) return null;
+      // Priority order: Daniel (UK), Google UK English Male, Samantha, any en-IN, en-GB, en-US
+      const priorities = [
+        v => v.name === 'Daniel',
+        v => v.name.includes('Google UK English Male'),
+        v => v.name.includes('Google UK English Female'),
+        v => v.name === 'Samantha',
+        v => v.lang === 'en-IN',
+        v => v.lang === 'en-GB',
+        v => v.lang.startsWith('en-US') && !v.name.includes('Zira'),
+        v => v.lang.startsWith('en'),
+      ];
+      for (const fn of priorities) {
+        const match = voices.find(fn);
+        if (match) return match;
+      }
+      return voices[0];
+    }
+
+    // Voices load async — try once now, re-pick on voiceschanged
+    if (window.speechSynthesis) {
+      preferredVoice = pickVoice();
+      window.speechSynthesis.onvoiceschanged = () => { preferredVoice = pickVoice(); };
+    }
+
+    function speak(text) {
+      if (!enabled || !window.speechSynthesis) return;
+      // Cancel any in-flight speech
+      window.speechSynthesis.cancel();
+      // Strip markdown-ish chars that sound awkward when spoken
+      const clean = text
+        .replace(/---/g, '. ')
+        .replace(/[*_`#]/g, '')
+        .replace(/\n+/g, ' ')
+        .trim();
+      const utt = new SpeechSynthesisUtterance(clean);
+      if (!preferredVoice) preferredVoice = pickVoice();
+      if (preferredVoice) utt.voice = preferredVoice;
+      utt.rate  = 0.95;   // slightly measured — interview pace
+      utt.pitch = 1.0;
+      utt.volume = 1.0;
+      utt.onstart = () => { speaking = true; };
+      utt.onend   = () => { speaking = false; };
+      utt.onerror = () => { speaking = false; };
+      window.speechSynthesis.speak(utt);
+    }
+
+    function stop() {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      speaking = false;
+    }
+
+    function toggle() {
+      enabled = !enabled;
+      if (!enabled) stop();
+      const btn = document.getElementById('voice-btn');
+      if (btn) {
+        btn.textContent = enabled ? '🔊' : '🔇';
+        btn.title = enabled ? 'Interviewer voice ON — click to mute' : 'Interviewer voice OFF — click to unmute';
+        btn.classList.toggle('active', enabled);
+      }
+      showToast(enabled ? 'Interviewer voice ON' : 'Interviewer voice muted');
+    }
+
+    function isSpeaking() { return speaking; }
+    function isEnabled()  { return enabled;  }
+
+    return { speak, stop, toggle, isSpeaking, isEnabled };
+  })();
+
   // ── System Prompts — Socratic, never prescriptive ─────────────────────────
   function buildSystemPrompt(stage, caseObj) {
     const base = `You are a BCG India partner conducting a LIVE case interview for a Senior Associate 2 candidate.
@@ -305,9 +384,9 @@ After their response, say: "Thank you. That concludes our case today."`,
       CaseTimer.start();
       CaseTimer.onStageChange('setup');
     }
-    addToTranscript('interviewer',
-      `Good morning. Here's your case.\n\n---\n\n${caseObj.context}\n\n---\n\nTake a moment to read through it. When you're ready, go ahead.`
-    );
+    const openingText = `Good morning. Here's your case.\n\n---\n\n${caseObj.context}\n\n---\n\nTake a moment to read through it. When you're ready, go ahead.`;
+    addToTranscript('interviewer', openingText);
+    Voice.speak(`Good morning. Here's your case. ${caseObj.context}. Take a moment to read through it. When you're ready, go ahead.`);
   }
 
   async function sendMessage(text) {
@@ -328,6 +407,7 @@ After their response, say: "Thank you. That concludes our case today."`,
       showTypingIndicator(false);
       state.messages.push({ role: 'assistant', content: response });
       addToTranscript('interviewer', response);
+      Voice.speak(response);
       detectStageAdvance(text);
     } catch (err) {
       showTypingIndicator(false);
@@ -346,7 +426,8 @@ After their response, say: "Thank you. That concludes our case today."`,
 
     addToTranscript('system', '— Scoring your performance... —');
 
-    // Stop timer and capture timing summary
+    // Stop voice and timer
+    Voice.stop();
     const timingSummary = window.CaseTimer ? CaseTimer.stop() : null;
 
     const fullTranscript = state.transcript
@@ -479,6 +560,8 @@ After their response, say: "Thank you. That concludes our case today."`,
         if (Speech.isActive()) Speech.stop();
       }
     });
+
+    document.getElementById('voice-btn')?.addEventListener('click', Voice.toggle);
 
     document.getElementById('end-case-btn')?.addEventListener('click', endCase);
 
