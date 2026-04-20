@@ -107,10 +107,13 @@
         <!-- Focus Banner — shows top gap from last session -->
         <div id="focus-banner" class="focus-banner" style="display:none;">
           <div class="focus-banner-left">
-            <span class="focus-banner-tag">📌 Continue your plan</span>
+            <span class="focus-banner-tag">📌 Continue your improvement plan</span>
             <div class="focus-banner-desc" id="focus-banner-desc">—</div>
           </div>
-          <button class="focus-banner-btn" id="focus-banner-btn">Start targeted practice →</button>
+          <div class="focus-banner-actions">
+            <button class="focus-drill-btn" id="focus-drill-btn">⚡ 5-min drill</button>
+            <button class="focus-banner-btn" id="focus-banner-btn">Full case →</button>
+          </div>
         </div>
 
         <!-- Time target input -->
@@ -588,6 +591,7 @@
 <script src="js/timer.js"></script>
 <script src="js/interview.js"></script>
 <script src="js/scoring.js"></script>
+<script src="js/drills.js"></script>
 <script src="js/dashboard.js"></script>
 <script>
   // Initial library render

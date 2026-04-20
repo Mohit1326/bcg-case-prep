@@ -395,6 +395,109 @@ html, body { height: 100%; font-family: 'Inter', system-ui, -apple-system, sans-
   border-radius: 5px; margin-top: 2px;
 }
 
+/* ─── Drill Modal ────────────────────────────────────────────────────────── */
+.drill-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center; z-index: 2000;
+  padding: 16px;
+}
+.drill-modal {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
+  width: 100%; max-width: 620px; max-height: 90vh; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.drill-modal-hdr {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--border); gap: 12px;
+}
+.drill-dim-badge {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--green); background: var(--green-dim); padding: 3px 9px; border-radius: 6px;
+}
+.drill-modal-title { font-size: 16px; font-weight: 700; color: var(--text); margin-top: 6px; }
+.drill-close-btn {
+  background: none; border: 1px solid var(--border); color: var(--text-muted);
+  width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-size: 14px;
+  flex-shrink: 0;
+}
+.drill-close-btn:hover { color: var(--text); border-color: var(--text-muted); }
+.drill-modal-body {
+  overflow-y: auto; padding: 20px 24px; display: flex;
+  flex-direction: column; gap: 14px;
+}
+.drill-phase-pill {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+}
+.drill-timer-badge {
+  font-size: 13px; font-weight: 800; color: var(--green);
+  background: var(--surface2); padding: 2px 9px; border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+}
+/* Concept card */
+.drill-concept-card, .drill-example-card, .drill-fb-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+}
+.drill-card-title { font-size: 12px; font-weight: 700; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+.drill-steps { padding-left: 18px; display: flex; flex-direction: column; gap: 7px; }
+.drill-steps li { font-size: 13px; color: var(--text); line-height: 1.6; }
+.drill-watch-out { font-size: 12px; color: var(--text-muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); line-height: 1.6; }
+.drill-watch-label { font-weight: 700; color: #ff9800; }
+.drill-example-card { border-color: rgba(0,166,81,0.25); background: rgba(0,166,81,0.04); }
+.drill-example-text { font-size: 13px; color: var(--text-dim); line-height: 1.75; font-style: italic; }
+/* Prompt */
+.drill-prompt-card {
+  background: var(--surface2); border: 1px solid rgba(255,152,0,0.3);
+  border-radius: 10px; padding: 14px 16px; font-size: 13px; color: var(--text); line-height: 1.7;
+}
+/* Textarea */
+.drill-textarea {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-size: 13px; padding: 12px 14px;
+  resize: vertical; min-height: 100px; font-family: inherit; line-height: 1.6;
+}
+.drill-textarea:focus { outline: none; border-color: var(--green); }
+.drill-apply-row { display: flex; gap: 8px; }
+.drill-mic-btn {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim);
+  padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600;
+  transition: all 0.15s;
+}
+.drill-mic-btn:hover { border-color: var(--green); color: var(--green); }
+/* Score card */
+.drill-score-card {
+  border-radius: 10px; border: 1px solid; padding: 14px 18px;
+  display: flex; align-items: center; gap: 16px;
+}
+.drill-score-num { font-size: 36px; font-weight: 800; line-height: 1; }
+.drill-score-denom { font-size: 14px; color: var(--text-muted); }
+.drill-verdict { font-size: 16px; font-weight: 700; }
+/* Feedback cards */
+.drill-fb-green { border-color: rgba(0,166,81,0.3); background: rgba(0,166,81,0.05); }
+.drill-fb-red   { border-color: rgba(239,83,80,0.3); background: rgba(239,83,80,0.05); }
+.drill-fb-orange{ border-color: rgba(255,152,0,0.3); background: rgba(255,152,0,0.05); }
+.drill-fb-text  { font-size: 13px; color: var(--text); line-height: 1.7; }
+.drill-exact-fix { font-style: italic; font-weight: 500; }
+.drill-feedback-actions { display: flex; gap: 8px; padding-top: 4px; }
+/* Buttons */
+.drill-primary-btn {
+  flex: 1; background: var(--green); color: white; border: none;
+  padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+}
+.drill-primary-btn:hover { background: var(--green-light); }
+.drill-secondary-btn {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim);
+  padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all 0.15s;
+}
+.drill-secondary-btn:hover { border-color: var(--green); color: var(--text); }
+.drill-loading {
+  display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 40px 0;
+}
+.drill-loading p { font-size: 13px; color: var(--text-muted); }
+
 /* ─── Focus Banner (case select screen) ─────────────────────────────────── */
 .focus-banner {
   display: flex; align-items: center; justify-content: space-between; gap: 14px;
@@ -410,6 +513,13 @@ html, body { height: 100%; font-family: 'Inter', system-ui, -apple-system, sans-
   border-radius: 8px; cursor: pointer; white-space: nowrap; transition: all 0.15s;
 }
 .focus-banner-btn:hover { background: rgba(255,152,0,0.25); }
+.focus-banner-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.focus-drill-btn {
+  background: rgba(33,150,243,0.1); border: 1px solid rgba(33,150,243,0.35);
+  color: #64b5f6; font-size: 12px; font-weight: 700; padding: 7px 14px;
+  border-radius: 8px; cursor: pointer; white-space: nowrap; transition: all 0.15s;
+}
+.focus-drill-btn:hover { background: rgba(33,150,243,0.2); }
 
 /* ─── Close the Loop Panel (results tab) ────────────────────────────────── */
 .loop-panel { display: flex; flex-direction: column; gap: 14px; padding: 20px; background: var(--surface); border: 1px solid rgba(33,150,243,0.25); border-radius: 14px; margin-top: 4px; }
@@ -435,6 +545,13 @@ html, body { height: 100%; font-family: 'Inter', system-ui, -apple-system, sans-
   border-radius: 8px; cursor: pointer; transition: all 0.15s;
 }
 .loop-start-btn:hover { background: rgba(0,166,81,0.2); }
+.loop-gap-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.loop-drill-btn {
+  background: rgba(33,150,243,0.1); border: 1px solid rgba(33,150,243,0.35);
+  color: #64b5f6; font-size: 12px; font-weight: 700; padding: 7px 14px;
+  border-radius: 8px; cursor: pointer; transition: all 0.15s;
+}
+.loop-drill-btn:hover { background: rgba(33,150,243,0.2); }
 .loop-all-clear { font-size: 13px; color: var(--green); font-weight: 600; }
 .loop-retest-row { display: flex; align-items: center; gap: 12px; padding-top: 4px; border-top: 1px solid var(--border); flex-wrap: wrap; }
 

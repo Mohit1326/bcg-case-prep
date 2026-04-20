@@ -307,9 +307,14 @@ Return this exact JSON:
               </div>
               <p class="loop-gap-feedback">${result.dimensionFeedback?.[dim] || ''}</p>
               <div class="loop-gap-drill"><span class="loop-drill-label">⚡ Fix this now:</span> ${DIM_DRILLS[dim]}</div>
-              <button class="loop-start-btn" onclick="window.startTargetedCase('${dim}')">
-                Practice ${DIM_LABELS[dim]}-focused Case →
-              </button>
+              <div class="loop-gap-actions">
+                <button class="loop-drill-btn" onclick="window.Drills.openDrillModal('${dim}')">
+                  ⚡ 5-min Micro-Drill
+                </button>
+                <button class="loop-start-btn" onclick="window.startTargetedCase('${dim}')">
+                  📋 Full Practice Case →
+                </button>
+              </div>
             </div>
           `).join('')}
         </div>

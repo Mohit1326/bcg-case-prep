@@ -309,6 +309,8 @@ window.showFocusBanner = function() {
   banner.style.display = 'flex';
   if (descEl) descEl.textContent = `${DIM_LABELS[dim]} (${last.scores[dim].toFixed(1)}/10 last session) — ${DIM_DESC[dim]}`;
   if (btnEl)  btnEl.onclick = () => window.startTargetedCase(dim);
+  const drillBtn = document.getElementById('focus-drill-btn');
+  if (drillBtn) drillBtn.onclick = () => window.Drills && window.Drills.openDrillModal(dim);
 };
 
 // ── Case History Repository ────────────────────────────────────────────────────
