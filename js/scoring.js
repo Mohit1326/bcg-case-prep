@@ -279,6 +279,7 @@ Return this exact JSON:
                      .sort((a, b) => result.scores[a] - result.scores[b]);
 
     panel.style.display = 'block';
+    setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 200);
 
     if (gaps.length === 0) {
       panel.innerHTML = `

@@ -23,6 +23,9 @@
       <div class="nav-item" data-view="practice">
         <span class="nav-icon">🎯</span><span>Practice</span>
       </div>
+      <div class="nav-item" data-view="coach">
+        <span class="nav-icon">🎓</span><span>Step Coach</span>
+      </div>
       <div class="nav-item" data-view="library">
         <span class="nav-icon">📚</span><span>Case Library</span>
       </div>
@@ -230,8 +233,8 @@
         <div class="input-area">
           <div class="input-row">
             <div class="input-text-wrap">
-              <textarea id="input-text" rows="2" placeholder="Type your response... or hold Space to use voice (Chrome)"></textarea>
-              <span id="interim-text"></span>
+              <textarea id="input-text" rows="2" placeholder="Type your response… or click 🎤 to speak (Chrome/Edge)"></textarea>
+              <div id="interim-text" class="interim-preview"></div>
             </div>
             <div class="input-btns">
               <button id="send-btn" title="Send (Enter)">➤</button>
@@ -418,6 +421,16 @@
 
     </div>
 
+    <!-- ── STEP COACH ── -->
+    <div id="view-coach" class="view">
+      <div id="coach-case-select" style="padding:32px;">
+        <!-- rendered by StepCoach.renderCoachSelect() -->
+      </div>
+      <div id="coach-active" style="display:none;flex-direction:column;height:100%;overflow:hidden;">
+        <!-- rendered by StepCoach engine -->
+      </div>
+    </div>
+
     <!-- ── LIBRARY ── -->
     <div id="view-library" class="view">
       <div class="view-header">
@@ -592,6 +605,7 @@
 <script src="js/interview.js"></script>
 <script src="js/scoring.js"></script>
 <script src="js/drills.js"></script>
+<script src="js/stepcoach.js"></script>
 <script src="js/dashboard.js"></script>
 <script>
   // Initial library render

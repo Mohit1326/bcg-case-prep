@@ -176,7 +176,12 @@ html, body { height: 100%; font-family: 'Inter', system-ui, -apple-system, sans-
   font-family: inherit; line-height: 1.5; transition: border-color 0.15s;
 }
 #input-text:focus { outline: none; border-color: var(--green); }
-#interim-text { position: absolute; bottom: 10px; left: 14px; right: 14px; font-size: 12px; color: var(--text-muted); pointer-events: none; font-style: italic; }
+.interim-preview {
+  display: none; position: absolute; bottom: 6px; left: 14px; right: 14px;
+  font-size: 12px; color: #64b5f6; font-style: italic; pointer-events: none;
+  background: rgba(33,150,243,0.08); border-radius: 4px; padding: 3px 6px;
+  line-height: 1.4; max-height: 48px; overflow: hidden;
+}
 .input-btns { display: flex; flex-direction: column; gap: 6px; }
 #mic-btn, #send-btn {
   width: 44px; height: 44px; border-radius: var(--radius); border: 1px solid var(--border);
@@ -610,6 +615,119 @@ html, body { height: 100%; font-family: 'Inter', system-ui, -apple-system, sans-
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--green); }
+
+/* ─── Step Coach ─────────────────────────────────────────────────────────── */
+
+/* Case select screen */
+.coach-select-intro { margin-bottom: 24px; }
+.coach-select-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.coach-select-sub   { font-size: 13px; color: var(--text-dim); line-height: 1.7; max-width: 580px; }
+.coach-mode-pills   { margin-top: 10px; }
+.coach-mode-pill    { font-size: 12px; background: var(--green-dim); border: 1px solid rgba(0,166,81,0.3); color: var(--green); padding: 4px 12px; border-radius: 20px; }
+.coach-type-grid    { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 10px; margin: 16px 0; }
+.coach-type-btn     { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 12px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-dim); display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.15s; }
+.coach-type-btn:hover { border-color: var(--green); color: var(--green); transform: translateY(-2px); }
+.coach-type-icon    { font-size: 24px; }
+.coach-select-tip   { font-size: 12px; color: var(--text-muted); }
+.coach-lib-link     { color: var(--green); cursor: pointer; }
+
+/* Active session layout */
+#coach-active       { flex-direction: column; overflow: hidden; height: 100%; }
+.coach-header-bar   { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.coach-header-title { font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; }
+.coach-case-chip    { font-size: 11px; font-weight: 500; color: var(--text-muted); background: var(--surface2); padding: 2px 8px; border-radius: 6px; }
+.coach-exit-btn     { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.coach-exit-btn:hover { border-color: #ef5350; color: #ef5350; }
+
+/* Step progress bar */
+.coach-progress-bar { display: flex; align-items: flex-start; gap: 0; padding: 12px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto; }
+.coach-pip          { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 80px; position: relative; }
+.coach-pip:not(:last-child)::after { content:''; position:absolute; top:12px; left:calc(50% + 14px); right:calc(-50% + 14px); height:2px; background: var(--surface3); }
+.coach-pip.done::after  { background: var(--green); }
+.coach-pip-dot      { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--surface3); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--text-muted); z-index: 1; }
+.coach-pip.done .coach-pip-dot   { background: var(--green); border-color: var(--green); color: white; }
+.coach-pip.active .coach-pip-dot { background: var(--surface); border-color: var(--green); color: var(--green); box-shadow: 0 0 0 3px rgba(0,166,81,0.2); }
+.coach-pip-label    { font-size: 10px; color: var(--text-muted); text-align: center; line-height: 1.3; }
+.coach-pip.active .coach-pip-label { color: var(--green); font-weight: 600; }
+.coach-pip.done .coach-pip-label   { color: var(--green); }
+
+/* Scrollable body */
+.coach-scroll-body  { flex: 1; overflow-y: auto; padding: 20px 24px 40px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Case context */
+.coach-context-details  { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.coach-context-summary  { padding: 12px 16px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-dim); list-style: none; display: flex; align-items: center; justify-content: space-between; }
+.coach-context-summary::-webkit-details-marker { display: none; }
+.coach-expand-hint  { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+.coach-context-body { padding: 0 16px 14px; font-size: 13px; color: var(--text-dim); line-height: 1.7; border-top: 1px solid var(--border); padding-top: 12px; }
+.coach-data-list    { margin-top: 10px; font-size: 12px; }
+.coach-data-list ul { padding-left: 16px; margin-top: 4px; }
+.coach-data-list li { margin-bottom: 3px; color: var(--text-dim); }
+
+/* Step instruction */
+.coach-step-card    { background: var(--surface); border: 1px solid rgba(0,166,81,0.25); border-radius: var(--radius); padding: 16px; }
+.coach-step-badge   { font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 10px; }
+.coach-step-instruction { font-size: 14px; color: var(--text); line-height: 1.7; margin-bottom: 14px; }
+.coach-expects      { border-top: 1px solid var(--border); padding-top: 12px; }
+.coach-expects-hdr  { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.coach-step-card ul { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.coach-step-card li { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* Respond area */
+.coach-respond-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.coach-timer-row    { display: flex; align-items: center; justify-content: space-between; }
+.coach-respond-label { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px; }
+.coach-timer-el     { font-size: 14px; font-weight: 800; color: var(--green); font-variant-numeric: tabular-nums; }
+.coach-interim-wrap { position: relative; }
+.coach-textarea     { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; padding: 10px 12px; resize: vertical; min-height: 90px; font-family: inherit; line-height: 1.6; }
+.coach-textarea:focus { outline: none; border-color: var(--green); }
+.coach-interim-text { display: none; font-size: 11px; color: #64b5f6; font-style: italic; margin-top: 4px; padding: 3px 8px; background: rgba(33,150,243,0.07); border-radius: 4px; }
+.coach-respond-actions { display: flex; gap: 8px; }
+.coach-mic-btn      { background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.15s; }
+.coach-mic-btn:hover { border-color: var(--green); color: var(--green); }
+.coach-submit-btn   { flex: 1; background: var(--green); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.coach-submit-btn:hover { background: var(--green-light); }
+.coach-loading      { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 32px 0; }
+.coach-loading p    { font-size: 13px; color: var(--text-muted); }
+
+/* Feedback */
+.coach-fb-wrap      { display: flex; flex-direction: column; gap: 12px; }
+.coach-score-card   { border-radius: 10px; border: 1px solid; padding: 14px 18px; display: flex; align-items: center; gap: 16px; }
+.coach-score-num    { font-size: 40px; font-weight: 900; line-height: 1; }
+.coach-denom        { font-size: 14px; color: var(--text-muted); }
+.coach-verdict      { font-size: 16px; font-weight: 700; }
+.coach-step-sm      { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.coach-your-ans     { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.coach-fb-lbl       { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; }
+.coach-your-text    { font-size: 13px; color: var(--text-dim); font-style: italic; line-height: 1.6; }
+.coach-fb-row       { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.coach-fb-card      { border-radius: 8px; border: 1px solid; padding: 12px 14px; }
+.coach-fb-card p    { font-size: 13px; color: var(--text); line-height: 1.6; }
+.coach-green        { border-color: rgba(0,166,81,0.3); background: rgba(0,166,81,0.05); }
+.coach-red          { border-color: rgba(239,83,80,0.3); background: rgba(239,83,80,0.05); }
+.coach-model-card   { background: var(--surface); border: 1px solid rgba(0,166,81,0.3); border-radius: 8px; padding: 14px; }
+.coach-model-text   { font-size: 13px; color: var(--text); line-height: 1.75; font-style: italic; }
+.coach-rule-card    { background: rgba(33,150,243,0.06); border: 1px solid rgba(33,150,243,0.25); border-radius: 8px; padding: 12px 14px; }
+.coach-rule-text    { font-size: 13px; color: var(--text); font-weight: 600; line-height: 1.6; }
+.coach-nexttime-card { background: rgba(255,152,0,0.06); border: 1px solid rgba(255,152,0,0.3); border-radius: 8px; padding: 12px 14px; }
+.coach-nexttime-text { font-size: 13px; color: var(--text); font-style: italic; line-height: 1.6; }
+.coach-fb-actions   { display: flex; gap: 8px; padding-top: 4px; }
+.coach-retry-btn    { background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); padding: 9px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 600; }
+.coach-retry-btn:hover { border-color: var(--green); color: var(--green); }
+.coach-advance-btn  { flex: 1; background: var(--green); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.coach-advance-btn:hover { background: var(--green-light); }
+
+/* Summary */
+.coach-summary-header { text-align: center; padding: 20px 0 4px; }
+.coach-sum-avg      { font-size: 56px; font-weight: 900; line-height: 1; }
+.coach-sum-label    { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.coach-sum-list     { display: flex; flex-direction: column; gap: 10px; }
+.coach-sum-row      { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.coach-sum-step-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.coach-sum-score    { font-size: 12px; font-weight: 600; }
+.coach-sum-rule     { font-size: 12px; color: #64b5f6; }
+.coach-sum-fix      { font-size: 12px; color: #ff9800; font-style: italic; }
+.coach-sum-actions  { display: flex; gap: 8px; padding-top: 8px; }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {

@@ -64,22 +64,19 @@ window.Interview = (function() {
 
       recognition.onresult = (e) => {
         let interimChunk = '';
-        // Rebuild newSpeech from scratch using only final results in this session
-        // to avoid index drift issues on restart
         let finalChunk = '';
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const t = e.results[i][0].transcript;
-          if (e.results[i].isFinal) {
-            finalChunk += t + ' ';
-          } else {
-            interimChunk += t;
-          }
+          if (e.results[i].isFinal) finalChunk += t + ' ';
+          else interimChunk += t;
         }
         if (finalChunk) newSpeech += finalChunk;
         const interim = document.getElementById('interim-text');
-        if (interim) interim.textContent = interimChunk;
+        if (interim) {
+          interim.textContent = interimChunk;
+          interim.style.display = interimChunk ? 'block' : 'none';
+        }
         const input = document.getElementById('input-text');
-        // Combine: base the user already had + new speech this session
         if (input) input.value = (base + newSpeech).trim();
       };
 
@@ -201,24 +198,26 @@ window.Interview = (function() {
 
     function speak(text) {
       if (!enabled || !window.speechSynthesis) return;
-      // Cancel any in-flight speech
       window.speechSynthesis.cancel();
-      // Strip markdown-ish chars that sound awkward when spoken
       const clean = text
-        .replace(/---/g, '. ')
-        .replace(/[*_`#]/g, '')
-        .replace(/\n+/g, ' ')
-        .trim();
-      const utt = new SpeechSynthesisUtterance(clean);
-      if (!preferredVoice) preferredVoice = pickVoice();
-      if (preferredVoice) utt.voice = preferredVoice;
-      utt.rate  = 0.95;   // slightly measured — interview pace
-      utt.pitch = 1.0;
-      utt.volume = 1.0;
-      utt.onstart = () => { speaking = true; };
-      utt.onend   = () => { speaking = false; };
-      utt.onerror = () => { speaking = false; };
-      window.speechSynthesis.speak(utt);
+        .replace(/---/g, '. ').replace(/[*_`#]/g, '')
+        .replace(/\n+/g, ' ').trim();
+      const _doSpeak = () => {
+        if (!preferredVoice) preferredVoice = pickVoice();
+        const utt = new SpeechSynthesisUtterance(clean);
+        if (preferredVoice) utt.voice = preferredVoice;
+        utt.rate = 0.93; utt.pitch = 1.0; utt.volume = 1.0;
+        utt.onstart = () => { speaking = true; };
+        utt.onend   = () => { speaking = false; };
+        utt.onerror = () => { speaking = false; };
+        window.speechSynthesis.speak(utt);
+      };
+      // Voices may not be loaded yet on first call — retry after short delay
+      if (window.speechSynthesis.getVoices().length === 0) {
+        setTimeout(_doSpeak, 350);
+      } else {
+        _doSpeak();
+      }
     }
 
     function stop() {
@@ -386,7 +385,8 @@ After their response, say: "Thank you. That concludes our case today."`,
     }
     const openingText = `Good morning. Here's your case.\n\n---\n\n${caseObj.context}\n\n---\n\nTake a moment to read through it. When you're ready, go ahead.`;
     addToTranscript('interviewer', openingText);
-    Voice.speak(`Good morning. Here's your case. ${caseObj.context}. Take a moment to read through it. When you're ready, go ahead.`);
+    // Speak a short intro only — avoid reading the full case context aloud
+    Voice.speak(`Good morning. I've shared the case brief on screen. It's a ${caseObj.type} case in the ${caseObj.industry} sector. Take a moment to read through it. When you're ready, go ahead.`);
   }
 
   async function sendMessage(text) {

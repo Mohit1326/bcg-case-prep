@@ -33,10 +33,11 @@ window.showView = function(viewId) {
   const navItem = document.querySelector(`[data-view="${viewId}"]`);
   if (navItem) navItem.classList.add('active');
   APP.currentView = viewId;
-  if (viewId === 'dashboard') window.renderDashboard && window.renderDashboard();
-  if (viewId === 'library')   window.renderLibrary  && window.renderLibrary();
-  if (viewId === 'history')   window.renderHistory  && window.renderHistory();
-  if (viewId === 'practice')  window.showFocusBanner && window.showFocusBanner();
+  if (viewId === 'dashboard') window.renderDashboard  && window.renderDashboard();
+  if (viewId === 'library')   window.renderLibrary    && window.renderLibrary();
+  if (viewId === 'history')   window.renderHistory    && window.renderHistory();
+  if (viewId === 'practice')  window.showFocusBanner  && window.showFocusBanner();
+  if (viewId === 'coach')     window.renderCoachSelect && window.renderCoachSelect();
 };
 
 // ── API Call (direct to Anthropic — no proxy) ─────────────────────────────────
