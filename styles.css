@@ -768,3 +768,18 @@ html, body { height: 100%; font-family: 'Inter', system-ui, -apple-system, sans-
 .coach-vc-mistakes-summary { background: rgba(239,83,80,0.06); border: 1px solid rgba(239,83,80,0.25); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; }
 .coach-vc-mistakes-summary ul { margin: 8px 0 0 0; padding-left: 18px; }
 .coach-vc-mistakes-summary li { font-size: 13px; color: var(--text-dim); margin-bottom: 4px; }
+
+/* ─── Drill Modal — Interim Speech Display ───────────────────────────────── */
+.drill-interim-text {
+  background: rgba(33,150,243,0.08);
+  border: 1px solid rgba(33,150,243,0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #64b5f6;
+  font-style: italic;
+  margin-top: 6px;
+  line-height: 1.5;
+  min-height: 34px;
+  word-break: break-word;
+}

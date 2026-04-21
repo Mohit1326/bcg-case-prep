@@ -290,8 +290,10 @@ window.Drills = (function() {
   // ── State ─────────────────────────────────────────────────────────────────
   let state = { drill: null, dimension: null, phase: 'learn' };
   let timerInterval = null;
-  let speechRec = null;
+  let speechRec    = null;
   let speechActive = false;
+  let _micBase     = '';   // text in textarea when mic started (preserved across sessions)
+  let _micNew      = '';   // only speech added since mic last turned on
 
   // ── Public: open a drill ──────────────────────────────────────────────────
   function openDrillModal(dimension) {
@@ -371,7 +373,8 @@ window.Drills = (function() {
       <div class="drill-prompt-card">${state.drill.prompt.replace(/\n/g, '<br>')}</div>
 
       <textarea id="drill-input" class="drill-textarea"
-        placeholder="Type your answer here, or click the mic to speak..."></textarea>
+        placeholder="Type your answer here, or click the mic to speak…"></textarea>
+      <div id="drill-interim" class="drill-interim-text" style="display:none;"></div>
 
       <div class="drill-apply-row">
         <button class="drill-mic-btn" id="drill-mic-btn" onclick="Drills._toggleMic()">🎤 Speak</button>
@@ -430,36 +433,88 @@ window.Drills = (function() {
   }
 
   // ── Mic ───────────────────────────────────────────────────────────────────
-  function _toggleMic() {
-    speechActive ? _stopMic() : _startMic();
+  function _toggleMic() { speechActive ? _stopMic() : _startMic(); }
+
+  function _clearInterim() {
+    const el = document.getElementById('drill-interim');
+    if (el) { el.textContent = ''; el.style.display = 'none'; }
   }
 
   function _startMic() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { showToast('Speech not supported — use Chrome.', 'error'); return; }
+    if (!SR) { showToast('Speech recognition not supported — please use Chrome.', 'error'); return; }
+
     speechRec = new SR();
-    speechRec.continuous = true; speechRec.interimResults = true; speechRec.lang = 'en-IN';
-    let base = (document.getElementById('drill-input')?.value || '').trim();
-    speechRec.onresult = e => {
-      let finals = '', interim = '';
+    speechRec.continuous      = true;
+    speechRec.interimResults  = true;
+    speechRec.lang            = 'en-IN';
+    speechRec.maxAlternatives = 1;
+
+    // Snapshot current textarea text as base; only NEW speech goes into _micNew
+    _micBase = (document.getElementById('drill-input')?.value || '').trim();
+    _micNew  = '';
+
+    speechRec.onresult = (e) => {
+      let finalChunk = '', interimChunk = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) finals += e.results[i][0].transcript + ' ';
-        else interim += e.results[i][0].transcript;
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalChunk += t + ' ';
+        else interimChunk += t;
       }
-      base += finals;
+      if (finalChunk) _micNew += finalChunk;
+
+      // Textarea = base + confirmed new speech (no interim in textarea)
       const inp = document.getElementById('drill-input');
-      if (inp) inp.value = (base + (interim ? ' ' + interim : '')).trim();
+      if (inp) inp.value = (_micBase + (_micNew ? ' ' + _micNew : '')).trim();
+
+      // Interim shown separately below textarea
+      const interimEl = document.getElementById('drill-interim');
+      if (interimEl) {
+        if (interimChunk) {
+          interimEl.textContent = '🎤 ' + interimChunk;
+          interimEl.style.display = 'block';
+        } else {
+          interimEl.textContent = '';
+          interimEl.style.display = 'none';
+        }
+      }
     };
-    speechRec.onend = () => { if (speechActive) { try { speechRec.start(); } catch(e){} } };
+
+    speechRec.onerror = (e) => {
+      if (e.error === 'not-allowed' || e.error === 'permission-denied') {
+        showToast('Microphone access denied — allow mic in browser settings.', 'error');
+        _stopMic();
+      } else if (e.error === 'network') {
+        showToast('Network error with speech recognition — check connection.', 'error');
+        _stopMic();
+      } else if (e.error === 'audio-capture') {
+        showToast('No microphone found — plug one in and try again.', 'error');
+        _stopMic();
+      }
+      // 'no-speech' and 'aborted' are non-fatal — let onend handle restart
+    };
+
+    speechRec.onend = () => {
+      if (speechActive) {
+        try { speechRec.start(); } catch(e) { /* already starting */ }
+      }
+    };
+
     speechRec.start();
     speechActive = true;
+
     const btn = document.getElementById('drill-mic-btn');
-    if (btn) { btn.textContent = '🔴 Recording — click to stop'; btn.style.color = '#ef5350'; btn.style.borderColor = '#ef5350'; }
+    if (btn) {
+      btn.textContent = '🔴 Stop recording';
+      btn.style.color = '#ef5350';
+      btn.style.borderColor = '#ef5350';
+    }
   }
 
   function _stopMic() {
     speechActive = false;
     try { speechRec?.stop(); } catch(e) {}
+    _clearInterim();
     const btn = document.getElementById('drill-mic-btn');
     if (btn) { btn.textContent = '🎤 Speak'; btn.style.color = ''; btn.style.borderColor = ''; }
   }
@@ -468,7 +523,11 @@ window.Drills = (function() {
   async function _submit() {
     clearInterval(timerInterval);
     _stopMic();
-    const answer = document.getElementById('drill-input')?.value?.trim() || '';
+    _clearInterim();
+    // Flush any pending interim into the textarea before reading
+    const inp = document.getElementById('drill-input');
+    if (inp && _micNew) inp.value = (_micBase + ' ' + _micNew).trim();
+    const answer = inp?.value?.trim() || document.getElementById('drill-input')?.value?.trim() || '';
     if (!answer) { showToast('Write or speak your answer first.', 'error'); return; }
 
     const body = document.getElementById('drill-body');
@@ -521,9 +580,16 @@ Return ONLY this JSON — no other text:
   }
 
   // ── Navigation ────────────────────────────────────────────────────────────
-  function _goApply() { state.phase = 'apply'; _renderPhase(); }
+  function _goApply() {
+    _stopMic();
+    _micBase = ''; _micNew = '';
+    state.phase = 'apply';
+    _renderPhase();
+  }
 
-  function _retry()  {
+  function _retry() {
+    _stopMic();
+    _micBase = ''; _micNew = '';
     state.phase = 'apply';
     state.feedbackHTML = null;
     _renderPhase();
