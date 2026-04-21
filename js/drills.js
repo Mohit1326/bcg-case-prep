@@ -290,10 +290,12 @@ window.Drills = (function() {
   // ── State ─────────────────────────────────────────────────────────────────
   let state = { drill: null, dimension: null, phase: 'learn' };
   let timerInterval = null;
-  let speechRec    = null;
-  let speechActive = false;
-  let _micBase     = '';   // text in textarea when mic started (preserved across sessions)
-  let _micNew      = '';   // only speech added since mic last turned on
+  let speechRec      = null;
+  let speechActive   = false;
+  let _micBase       = '';   // text in textarea when mic started (merged into on each onend restart)
+  let _micNew        = '';   // only speech added since last recognition segment started
+  let _grammarTimer  = null; // debounce handle for auto grammar-correction
+  let _grammarVer    = 0;    // version counter — incremented on each new final chunk
 
   // ── Public: open a drill ──────────────────────────────────────────────────
   function openDrillModal(dimension) {
@@ -375,6 +377,7 @@ window.Drills = (function() {
       <textarea id="drill-input" class="drill-textarea"
         placeholder="Type your answer here, or click the mic to speak…"></textarea>
       <div id="drill-interim" class="drill-interim-text" style="display:none;"></div>
+      <div id="drill-grammar-status" class="drill-grammar-status" style="display:none;">✨ Auto-correcting grammar…</div>
 
       <div class="drill-apply-row">
         <button class="drill-mic-btn" id="drill-mic-btn" onclick="Drills._toggleMic()">🎤 Speak</button>
@@ -461,7 +464,13 @@ window.Drills = (function() {
         if (e.results[i].isFinal) finalChunk += t + ' ';
         else interimChunk += t;
       }
-      if (finalChunk) _micNew += finalChunk;
+
+      if (finalChunk) {
+        _micNew += finalChunk;
+        // Debounce grammar correction — fires 1.5 s after last confirmed word
+        clearTimeout(_grammarTimer);
+        _grammarTimer = setTimeout(_correctGrammar, 1500);
+      }
 
       // Textarea = base + confirmed new speech (no interim in textarea)
       const inp = document.getElementById('drill-input');
@@ -496,7 +505,21 @@ window.Drills = (function() {
 
     speechRec.onend = () => {
       if (speechActive) {
-        try { speechRec.start(); } catch(e) { /* already starting */ }
+        // ── KEY FIX: merge confirmed finals into _micBase before restarting ──
+        // Chrome may drop words that were "interim" at the moment onend fired.
+        // Merging here guarantees all confirmed finals survive the recognition gap.
+        if (_micNew) {
+          _micBase = (_micBase + ' ' + _micNew).trim();
+          _micNew  = '';
+          const inp = document.getElementById('drill-input');
+          if (inp) inp.value = _micBase;
+        }
+        // Short delay prevents a Chrome race condition on rapid stop→start
+        setTimeout(() => {
+          if (speechActive) {
+            try { speechRec.start(); } catch(e) { /* already starting */ }
+          }
+        }, 80);
       }
     };
 
@@ -511,10 +534,51 @@ window.Drills = (function() {
     }
   }
 
+  // ── Grammar auto-correction (debounced, runs after each finalised chunk) ──
+  async function _correctGrammar() {
+    const inp = document.getElementById('drill-input');
+    if (!inp || !inp.value.trim()) return;
+
+    const version  = ++_grammarVer;
+    const fullText = inp.value.trim();
+
+    // Show subtle status indicator (only if interim isn't showing live speech)
+    const grammarEl = document.getElementById('drill-grammar-status');
+    if (grammarEl) { grammarEl.style.display = 'block'; }
+
+    try {
+      const corrected = await callClaude(
+        [{ role: 'user', content: `Fix ONLY grammar, punctuation, and capitalisation in this speech-to-text transcript from a case interview. Do NOT change, add, or remove any words. Do NOT rewrite sentences. Fix: sentence-start capitals, "i" → "I", missing full stops, comma splices, obvious mis-capitalised proper nouns. Return ONLY the corrected text — no quotes, no explanation.\n\n${fullText}` }],
+        'You are a grammar corrector for speech transcripts. Return only the corrected text, nothing else.',
+        'claude-haiku-4-5-20251001', 512
+      );
+
+      // Only apply if no newer grammar run was triggered in the meantime
+      if (version === _grammarVer) {
+        const clean = corrected.trim();
+        if (clean && clean !== fullText) {
+          inp.value = clean;
+          // Reset base/new so further speech appends correctly
+          _micBase = clean;
+          _micNew  = '';
+        }
+      }
+    } catch(e) {
+      // Silent fail — raw transcript stays as-is
+    } finally {
+      if (version === _grammarVer) {
+        if (grammarEl) { grammarEl.style.display = 'none'; }
+      }
+    }
+  }
+
   function _stopMic() {
     speechActive = false;
+    clearTimeout(_grammarTimer);   // cancel any pending correction
     try { speechRec?.stop(); } catch(e) {}
     _clearInterim();
+    const grammarEl = document.getElementById('drill-grammar-status');
+    if (grammarEl) { grammarEl.style.display = 'none'; }
     const btn = document.getElementById('drill-mic-btn');
     if (btn) { btn.textContent = '🎤 Speak'; btn.style.color = ''; btn.style.borderColor = ''; }
   }
@@ -582,14 +646,14 @@ Return ONLY this JSON — no other text:
   // ── Navigation ────────────────────────────────────────────────────────────
   function _goApply() {
     _stopMic();
-    _micBase = ''; _micNew = '';
+    _micBase = ''; _micNew = ''; _grammarVer = 0;
     state.phase = 'apply';
     _renderPhase();
   }
 
   function _retry() {
     _stopMic();
-    _micBase = ''; _micNew = '';
+    _micBase = ''; _micNew = ''; _grammarVer = 0;
     state.phase = 'apply';
     state.feedbackHTML = null;
     _renderPhase();

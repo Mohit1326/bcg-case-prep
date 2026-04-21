@@ -783,3 +783,22 @@ html, body { height: 100%; font-family: 'Inter', system-ui, -apple-system, sans-
   min-height: 34px;
   word-break: break-word;
 }
+
+/* ─── Drill Modal — Grammar Auto-Correction Status ───────────────────────── */
+.drill-grammar-status {
+  font-size: 11px;
+  color: #a5b4a0;
+  background: rgba(0,166,81,0.06);
+  border: 1px solid rgba(0,166,81,0.2);
+  border-radius: 4px;
+  padding: 4px 10px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: drill-grammar-pulse 1.2s ease-in-out infinite;
+}
+@keyframes drill-grammar-pulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1;   }
+}
