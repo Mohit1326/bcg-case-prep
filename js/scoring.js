@@ -37,27 +37,52 @@ window.Scoring = (function() {
       : '';
 
     const systemPrompt = `You are a senior BCG India partner evaluating a SA2 candidate.
+Apply VICTOR CHENG'S evaluation framework from "Case Interview Secrets."
 Feedback must be SPECIFIC, HONEST, ACTIONABLE — cite transcript evidence.${retestContext}
 
-STRUCTURING (0-10): MECE issue trees, hypothesis-driven framing, logical prioritisation
-  9-10: Crisp MECE tree, strong upfront hypothesis, correct prioritisation
-  7-8:  Good structure, mostly MECE, hypothesis present but could be sharper
-  5-6:  Some structure, missing branches, weak hypothesis
-  3-4:  Reactive, no clear framework    1-2: No structure
+VICTOR CHENG'S 10 COMMON MISTAKES (check each one):
+  #1  No hypothesis stated at all
+  #2  Framework/issue tree not linked to hypothesis
+  #3  Framework/issue tree not mutually exclusive enough (overlapping branches)
+  #4  Framework/issue tree missing a key factor (not collectively exhaustive)
+  #5  Key insight missed due to insufficient quantification (hand-waving numbers)
+  #6  Key insight missed due to lack of qualitative questioning
+  #7  Math mistake
+  #8  Jumping around vs. linearly, logically drilling down branch by branch
+  #9  Pursuit of analysis unnecessary to test hypothesis (inefficient)
+  #10 Activity-based summary vs. big-picture top-down synthesis
 
-ANALYTICS (0-10): Quant reasoning, math accuracy, data-driven decisions
-  9-10: Accurate math, sharp quantification, no avoidance
-  7-8:  Good quant, minor errors OK    5-6: Misses key calculations
-  3-4:  Largely qualitative    1-2: Zero quantitative engagement
+STRUCTURING (0-10) — VC Criteria:
+  Check: Hypothesis stated within 5 min? (Mistake #1) | Tree linked to hypothesis? (#2) | MECE? (#3 #4) | Prioritisation with rationale? | Branches rephrased as sub-hypotheses?
+  9-10: Explicit hypothesis first, MECE tree, all 3 VC validity tests passed (hypothesis-linked, MECE, conclusive), crisp prioritisation
+  7-8:  Hypothesis present and linked, mostly MECE, minor gap or overlap
+  5-6:  Framework used without hypothesis, or tree not MECE, or generic frameworks force-fitted
+  3-4:  No hypothesis, framework slapped on reactively, jumping around (#8)
+  1-2:  No structure at all
 
-SYNTHESIS (0-10): Root cause identification, "so-what" insight, recommendation quality
-  9-10: Correct root cause, crisp recommendation, risks addressed
-  7-8:  Clear recommendation, slightly generic    5-6: Misses key insight
-  3-4:  Vague    1-2: No synthesis or wrong conclusion
+ANALYTICS (0-10) — VC Criteria:
+  Check: Segmented every aggregate number? | Process of elimination used? | Two benchmarks (historical + competitive)? | Math accurate? (#7) | Linear drilling or jumping? (#8 #9)
+  9-10: Segmented aggregates, isolated driver via process of elimination, both benchmarks used, math correct, mini-synthesis at each branch switch
+  7-8:  Good segmentation and isolation, minor benchmark gap, math accurate
+  5-6:  Some quantification but missed key isolation step (#5), or only one benchmark used
+  3-4:  Largely qualitative, no segmentation (#5), or jumping around (#8)
+  1-2:  Zero quantitative engagement
 
-COMMUNICATION (0-10): Clarity, signposting, executive presence, conciseness
-  9-10: Crisp, confident, zero filler, signposted    7-8: Clear, minor verbosity
-  5-6:  Rambling, weak signposting    3-4: Hard to follow    1-2: Very unclear
+SYNTHESIS (0-10) — VC Criteria:
+  Check: Recommendation FIRST? | Exactly 3 supporting points? | Points restate conclusion at end? | Action-oriented? | OR: activity-based chronological summary? (#10)
+  9-10: Conclusion leads, exactly 3 supporting points, conclusion restated, specific action-oriented recommendation
+  7-8:  Conclusion first but 4+ points, or missing restatement, or slightly vague action
+  5-6:  Bottom-up summary or no clear recommendation (#10), or recommendation buried
+  3-4:  Activity recap only, no actionable recommendation
+  1-2:  No synthesis or wrong conclusion
+
+COMMUNICATION (0-10) — VC Criteria:
+  Check: Top-down structure? | Signposting? | Executive register? | Conciseness? | Mini-synthesis at branch switches?
+  9-10: Top-down always, crisp signposting ("first... second... third..."), zero filler, executive register
+  7-8:  Clear, minor verbosity, some signposting
+  5-6:  Rambling, weak signposting, bottom-up explanations
+  3-4:  Hard to follow, no structure in communication
+  1-2:  Very unclear
 
 BCG SA2 bar: 7.0+ on ALL 4 = Hire.
 Case rubric: ${JSON.stringify(caseObj.scoringRubric)}
@@ -76,19 +101,20 @@ Return ONLY this JSON:
   "scores": { "structuring":<0-10>, "analytics":<0-10>, "synthesis":<0-10>, "communication":<0-10> },
   "overall": <mean>,
   "verdict": "Strong Hire|Hire|Borderline|No Hire",
+  "vcMistakes": ["<VC Mistake #N triggered: brief description>"],
   "strengthHighlights": ["<specific quote + why strong>","<second>","<third>"],
-  "developmentAreas": ["<gap + evidence + fix>","<second>","<third>"],
+  "developmentAreas": ["<gap + evidence + VC fix>","<second>","<third>"],
   "dimensionFeedback": {
-    "structuring": "<2-3 sentences: what done, what missing, one fix>",
+    "structuring": "<2-3 sentences citing transcript: what VC criterion met, what missing, one fix>",
     "analytics": "<2-3 sentences>",
     "synthesis": "<2-3 sentences>",
     "communication": "<2-3 sentences>"
   },
   "keyMoment": "<most defining moment — quote candidate if possible>",
-  "bcgComparison": "<honest: at/above/below SA2 bar, biggest gap>",
-  "nextFocus": "<ONE specific skill to drill — prescriptive>",
+  "bcgComparison": "<honest: at/above/below SA2 bar, which VC mistake hurt most>",
+  "nextFocus": "<ONE specific VC skill to drill — prescriptive>",
   "progressionNote": "<improving/plateauing/regressing vs focus area>",
-  "drillSuggestion": "<specific 15-min drill for weakest dimension>"
+  "drillSuggestion": "<specific VC-aligned 15-min drill for weakest dimension>"
 }`;
 
     const response = await callClaude(
@@ -125,12 +151,11 @@ Return this exact JSON:
   "modelAnswer": "<3-4 sentence crisp answer a BCG partner would give — the recommendation, root cause, and key actions>",
 
   "solutionWalkthrough": [
-    { "step": 1, "label": "Clarify & Scope", "what": "<what to do>", "why": "<why this step matters>", "example": "<what ideal candidate says/asks>" },
-    { "step": 2, "label": "State Hypothesis", "what": "<upfront hypothesis>", "why": "<why hypothesis-first>", "example": "<exact phrasing>" },
-    { "step": 3, "label": "Build Framework", "what": "<framework structure>", "why": "<why this framework for this case>", "example": "<how to present it verbally>" },
-    { "step": 4, "label": "Prioritise & Dig", "what": "<which branch to go deep on first>", "why": "<why this is highest leverage>", "example": "<what questions to ask>" },
-    { "step": 5, "label": "Do the Math", "what": "<key calculations needed>", "why": "<what numbers prove the case>", "example": "<worked example with this case's numbers>" },
-    { "step": 6, "label": "Synthesise", "what": "<how to structure the final recommendation>", "why": "<what makes a BCG-quality recommendation>", "example": "<example closing statement for this case>" }
+    { "step": 1, "label": "Stall & Clarify (VC Ch.17)", "what": "<restate question + 1-3 clarifying questions with reasons>", "why": "<what ambiguity this resolves>", "example": "<exact words: 'So you want to know whether... Before I state my hypothesis, may I ask...'>" },
+    { "step": 2, "label": "State Hypothesis (VC Ch.8)", "what": "<the specific directional hypothesis for this case>", "why": "<why hypothesis-first — it organises all subsequent analysis>", "example": "<exact phrasing: 'My initial working hypothesis is X because Y. To test this...'>" },
+    { "step": 3, "label": "Build Issue Tree (VC Ch.9)", "what": "<3 MECE branches, each as a sub-hypothesis, passing VC's 3 validity tests>", "why": "<why this framework fits this case's hypothesis>", "example": "<verbal presentation: 'I've built a 3-bucket tree. Branch 1 tests whether... Branch 2 tests whether... I'll start with Branch 1 because...'>" },
+    { "step": 4, "label": "Drill-Down Analysis (VC Ch.10&18)", "what": "<segment → isolate → process of elimination → two benchmarks>", "why": "<which branch to drill first and why it's highest leverage>", "example": "<'I'd like to break this metric into its component parts...' [pause for interviewer] 'Given that X is the driver, I can rule out Y. Compared to last year and to competitors...'>", "miniSynthesis": "<the mini-synthesis to deliver before switching branches>" },
+    { "step": 5, "label": "Top-Down Synthesis (VC Ch.11&19)", "what": "<recommendation → 3 supporting points → restate recommendation>", "why": "<why top-down is the only acceptable format for BCG partners and CEOs>", "example": "<'The client should [action] for three reasons. First... Second... Third... And for those three reasons, I recommend [same action].'>" }
   ],
 
   "issueTree": {
@@ -238,6 +263,22 @@ Return this exact JSON:
     if (el('session-duration')) el('session-duration').textContent = `${session.durationMinutes} min`;
     if (el('progression-note')) el('progression-note').textContent = result.progressionNote || '—';
     if (el('drill-suggestion')) el('drill-suggestion').textContent = result.drillSuggestion  || '—';
+
+    // Show Victor Cheng mistakes panel
+    const vcPanel = el('vc-mistakes-panel');
+    const mistakes = result.vcMistakes || [];
+    if (vcPanel) {
+      if (mistakes.length) {
+        vcPanel.style.display = 'block';
+        vcPanel.innerHTML = `
+          <div class="vc-mistakes-hdr">⚠️ Victor Cheng Mistakes Triggered This Session</div>
+          <ul class="vc-mistakes-list">${mistakes.map(m => `<li>${m}</li>`).join('')}</ul>
+          <div class="vc-mistakes-footer">Fix these before your next session — each one has a targeted drill below.</div>`;
+      } else {
+        vcPanel.style.display = 'block';
+        vcPanel.innerHTML = `<div class="vc-mistakes-hdr" style="color:var(--green)">✅ No Victor Cheng common mistakes flagged — excellent discipline!</div>`;
+      }
+    }
 
     drawScoreRadar(result.scores);
 

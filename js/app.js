@@ -152,6 +152,152 @@ window.initSettings = function() {
       renderDashboard();
     }
   });
+
+  // ── Export / Import JSON ──────────────────────────────────────────────────
+  document.getElementById('export-history')?.addEventListener('click', () => {
+    const sessions = Storage.getSessions();
+    if (!sessions.length) { showToast('No sessions to export.', 'error'); return; }
+    const blob = new Blob([JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), sessions }, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `bcg-history-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`Exported ${sessions.length} sessions.`);
+  });
+
+  document.getElementById('import-history-file')?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data     = JSON.parse(ev.target.result);
+        const incoming = data.sessions || data; // accept bare array too
+        if (!Array.isArray(incoming)) throw new Error('Invalid format');
+        const existing = Storage.getSessions();
+        // Merge: deduplicate by session id or startTime
+        const existingIds = new Set(existing.map(s => s.id || s.startTime));
+        const merged = [...incoming.filter(s => !existingIds.has(s.id || s.startTime)), ...existing];
+        merged.sort((a, b) => new Date(b.startTime || 0) - new Date(a.startTime || 0));
+        if (merged.length > 200) merged.length = 200;
+        Storage.set('sessions', merged);
+        showToast(`Imported ${incoming.length} sessions (${merged.length} total).`);
+        renderDashboard && renderDashboard();
+      } catch (err) {
+        showToast('Import failed — invalid file.', 'error');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = ''; // allow re-import of same file
+  });
+
+  // ── GitHub Gist Sync ──────────────────────────────────────────────────────
+  const gistPatEl  = document.getElementById('gist-pat');
+  const gistStatus = document.getElementById('gist-status');
+
+  // Load saved PAT
+  if (gistPatEl) {
+    const savedPat = Storage.get('gistPat', '');
+    if (savedPat) gistPatEl.value = '•'.repeat(16) + savedPat.slice(-4);
+  }
+
+  const _getGistPat = () => {
+    const raw = gistPatEl?.value.trim() || '';
+    // If it's the masked version, return stored PAT instead
+    if (raw.startsWith('•')) return Storage.get('gistPat', '');
+    if (raw) { Storage.set('gistPat', raw); } // save new real value
+    return raw || Storage.get('gistPat', '');
+  };
+
+  const _setGistStatus = (msg, ok = true) => {
+    if (gistStatus) { gistStatus.textContent = msg; gistStatus.style.color = ok ? 'var(--green)' : '#e05252'; }
+  };
+
+  const GIST_FILENAME = 'bcg-case-prep-history.json';
+  const GIST_DESC     = 'BCG Case Prep — session history sync';
+
+  document.getElementById('gist-save')?.addEventListener('click', async () => {
+    const pat = _getGistPat();
+    if (!pat) { _setGistStatus('Enter your GitHub PAT first.', false); return; }
+    const sessions = Storage.getSessions();
+    if (!sessions.length) { _setGistStatus('No sessions to save.', false); return; }
+
+    _setGistStatus('Saving…');
+    try {
+      // Check if gist already exists
+      const savedGistId = Storage.get('gistId', '');
+      const payload = { description: GIST_DESC, public: false, files: { [GIST_FILENAME]: { content: JSON.stringify({ version: 1, savedAt: new Date().toISOString(), sessions }, null, 2) } } };
+
+      let res;
+      if (savedGistId) {
+        res = await fetch(`https://api.github.com/gists/${savedGistId}`, {
+          method: 'PATCH',
+          headers: { Authorization: `token ${pat}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } else {
+        res = await fetch('https://api.github.com/gists', {
+          method: 'POST',
+          headers: { Authorization: `token ${pat}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      }
+      if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+      const gist = await res.json();
+      Storage.set('gistId', gist.id);
+      _setGistStatus(`✓ Saved ${sessions.length} sessions to Gist (id: ${gist.id.slice(0,8)}…)`);
+      showToast('History saved to GitHub Gist!');
+    } catch (err) {
+      _setGistStatus(`Save failed: ${err.message}`, false);
+      showToast('Gist save failed.', 'error');
+    }
+  });
+
+  document.getElementById('gist-load')?.addEventListener('click', async () => {
+    const pat = _getGistPat();
+    if (!pat) { _setGistStatus('Enter your GitHub PAT first.', false); return; }
+
+    _setGistStatus('Loading…');
+    try {
+      // Try saved gist ID first, else search by description
+      let gistId = Storage.get('gistId', '');
+      if (!gistId) {
+        const listRes = await fetch('https://api.github.com/gists', { headers: { Authorization: `token ${pat}` } });
+        if (!listRes.ok) throw new Error(`GitHub API ${listRes.status}`);
+        const gists = await listRes.json();
+        const match = gists.find(g => g.description === GIST_DESC && g.files[GIST_FILENAME]);
+        if (!match) { _setGistStatus('No saved history found in your Gists.', false); return; }
+        gistId = match.id;
+        Storage.set('gistId', gistId);
+      }
+
+      const gistRes = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { Authorization: `token ${pat}` } });
+      if (!gistRes.ok) throw new Error(`GitHub API ${gistRes.status}`);
+      const gist    = await gistRes.json();
+      const raw     = gist.files[GIST_FILENAME]?.content;
+      if (!raw) throw new Error('File not found in Gist');
+      const data     = JSON.parse(raw);
+      const incoming = data.sessions || data;
+      if (!Array.isArray(incoming)) throw new Error('Invalid format');
+
+      // Merge with existing local sessions
+      const existing    = Storage.getSessions();
+      const existingIds = new Set(existing.map(s => s.id || s.startTime));
+      const merged      = [...incoming.filter(s => !existingIds.has(s.id || s.startTime)), ...existing];
+      merged.sort((a, b) => new Date(b.startTime || 0) - new Date(a.startTime || 0));
+      if (merged.length > 200) merged.length = 200;
+      Storage.set('sessions', merged);
+
+      _setGistStatus(`✓ Loaded ${incoming.length} sessions (${merged.length} total after merge).`);
+      showToast('History loaded from GitHub Gist!');
+      renderDashboard && renderDashboard();
+    } catch (err) {
+      _setGistStatus(`Load failed: ${err.message}`, false);
+      showToast('Gist load failed.', 'error');
+    }
+  });
 };
 
 // ── Toast Notification ────────────────────────────────────────────────────────

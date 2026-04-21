@@ -351,6 +351,9 @@
             </div>
           </div>
 
+          <!-- ⚠️ Victor Cheng Mistakes Panel -->
+          <div id="vc-mistakes-panel" style="display:none;" class="vc-mistakes-panel"></div>
+
           <!-- 🔄 Close the Loop Panel -->
           <div id="loop-panel" style="display:none;"></div>
 
@@ -576,7 +579,34 @@
         <div class="settings-card">
           <h3>Data Management</h3>
           <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">All session data is stored locally in your browser's localStorage.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+            <button id="export-history" class="btn-secondary">⬇ Export History (.json)</button>
+            <label class="btn-secondary" style="cursor:pointer;margin:0;">
+              ⬆ Import History
+              <input type="file" id="import-history-file" accept=".json" style="display:none;" />
+            </label>
+          </div>
           <button id="clear-data" class="btn-danger">Clear All Session History</button>
+        </div>
+
+        <div class="settings-card">
+          <h3>☁️ Cloud Sync via GitHub Gist</h3>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.7;">
+            Sync your history across devices using a private GitHub Gist.<br>
+            Create a <strong style="color:var(--text)">Classic Personal Access Token</strong> at
+            <strong style="color:var(--green)">github.com → Settings → Developer settings → PAT</strong>
+            with <code style="color:var(--green)">gist</code> scope.
+          </p>
+          <div class="field" style="margin-bottom:12px;">
+            <label>GitHub Personal Access Token</label>
+            <input type="password" id="gist-pat" placeholder="ghp_..." style="font-family:monospace;" />
+            <div class="field-hint">Stored only in your browser's localStorage.</div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+            <button id="gist-save" class="btn-primary" style="flex:1;">☁️ Save to Gist</button>
+            <button id="gist-load" class="btn-secondary" style="flex:1;">⬇ Load from Gist</button>
+          </div>
+          <div id="gist-status" style="font-size:12px;color:var(--text-muted);min-height:18px;"></div>
         </div>
 
         <div class="settings-card">
@@ -604,7 +634,7 @@
 <script src="js/timer.js"></script>
 <script src="js/interview.js"></script>
 <script src="js/scoring.js"></script>
-<script src="js/drills.js"></script>
+<script src="js/drills.js?v=2"></script>
 <script src="js/stepcoach.js"></script>
 <script src="js/dashboard.js"></script>
 <script>

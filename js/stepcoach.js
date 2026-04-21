@@ -1,77 +1,163 @@
-// ── Step Coach — Tutor Mode: One step at a time, coached to perfection ─────────
+// ── Step Coach — Victor Cheng Methodology: 5 Steps to Crack Any Case ─────────
+// Based on "Case Interview Secrets" by Victor Cheng (McKinsey, 2012)
+// VC Chapter refs embedded in each step definition
 window.StepCoach = (function() {
 
-  // ── Step Definitions ──────────────────────────────────────────────────────
+  // ── Step Definitions — Victor Cheng's Exact Process ──────────────────────
   const STEPS = [
     {
-      id: 'read',
-      icon: '👁️',
-      label: 'Situation Assessment',
-      timeLimit: 60,
-      instruction: 'You\'ve read the case. In 60 seconds give me three things:\n1. A one-sentence distillation of the situation (not a repeat — a distillation)\n2. What you think the core business question really is\n3. Your gut instinct on where the answer likely sits',
-      bcgExpects: [
-        '<strong>Distil, don\'t recite</strong> — compress the situation into one crisp sentence that captures the tension',
-        '<strong>Reframe the question</strong> — "The real question is not X, it\'s Y" shows strategic thinking',
-        '<strong>Directional gut instinct</strong> — even if imperfect, a directional view signals business judgment',
-        '<strong>No structure yet</strong> — this step is about reading the room, not frameworks',
-      ],
-      scoringCriteria: '(1) Did they distil or just repeat the case? (2) Did they reframe the question in their own terms? (3) Did they show a directional instinct with a reason?',
-    },
-    {
-      id: 'clarify',
-      icon: '❓',
-      label: 'Clarifying Questions',
+      id: 'stall_clarify',
+      icon: '🔍',
+      label: 'Stall & Clarify',
+      vcRef: 'VC Ch.17 — Steps 1 & 2',
       timeLimit: 90,
-      instruction: 'Ask 2–3 sharp clarifying questions. For each question, say WHY you\'re asking it — what analytical decision it unlocks.',
+      instruction:
+        'Victor Cheng opens every case with two moves — STALL, then CLARIFY.\n\n' +
+        '① STALL: Restate the question slowly in your own words. "So, you want to know whether X should do Y?" ' +
+        'This buys 20–30 seconds of thinking time and confirms you heard correctly.\n\n' +
+        '② CLARIFY: Ask 1–3 background questions. For EACH question, state WHY you are asking it — ' +
+        '"I want to ask about X because knowing it will determine whether I structure this as A or B."\n\n' +
+        'End with: "Before I state my hypothesis, I want to confirm a couple of things."\n\n' +
+        'NEVER jump straight into analysis. NEVER ask more than 3 questions.',
+      vcRule: '"Five-Minute Hypothesis Rule: If you haven\'t stated a hypothesis within 5 minutes, you\'re at serious risk of never stating one." — Victor Cheng',
       bcgExpects: [
-        '<strong>Maximum 3 questions</strong> — more signals poor prioritisation. BCG partners notice immediately.',
-        '<strong>Each question justified</strong> — "I\'m asking because knowing X will determine whether I go down path A or B"',
-        '<strong>Question types that matter</strong>: scope (what\'s in/out), definition (how is success measured), baseline (what does good look like historically?)',
-        '<strong>Never ask for data you can assume</strong> — only ask if the answer would materially change your approach',
+        '<strong>Restate the question first</strong> — "So, you\'re asking me whether…" signals you heard correctly and creates thinking time',
+        '<strong>Maximum 3 clarifying questions</strong> — more signals poor prioritisation. Each must be justified with an analytical reason',
+        '<strong>Clarify the objective & measure of success</strong> — "When you say \'should we enter\', what does success look like — IRR threshold, market share, absolute revenue?"',
+        '<strong>Clarify terms you don\'t know</strong> — VC himself asked "What\'s reinsurance?" mid-interview. Never fake domain knowledge',
+        '<strong>Telegraph the hypothesis is coming</strong> — "Once I confirm a few things, I\'ll share my initial hypothesis"',
       ],
-      scoringCriteria: '(1) Maximum 3 questions asked? (2) Each justified with an analytical reason? (3) At least one question that unlocks the structure or reveals a key constraint?',
+      scoringCriteria:
+        '(1) Did they restate the question? ' +
+        '(2) Max 3 questions? ' +
+        '(3) Each question justified with an analytical reason — why does the answer change the approach? ' +
+        '(4) Did they clarify objective / definition of success? ' +
+        '(5) Did they signal that a hypothesis follows?',
     },
     {
-      id: 'structure',
-      icon: '🏗️',
-      label: 'Hypothesis + Framework',
+      id: 'hypothesis',
+      icon: '💡',
+      label: 'State Hypothesis',
+      vcRef: 'VC Ch.8 — The Hypothesis',
+      timeLimit: 60,
+      instruction:
+        'Victor Cheng\'s Step 4: STATE YOUR HYPOTHESIS — explicitly, always, even if arbitrary.\n\n' +
+        'FORMAT: "My initial working hypothesis is [X] because [reason]. ' +
+        'This means the primary driver is likely [specific area]. To test this, I want to..."\n\n' +
+        'If you have minimal information: "Given the limited information, I\'ll state an ARBITRARY hypothesis ' +
+        'that [X] is the cause. This will organise my analysis and I\'ll revise it as data comes in."\n\n' +
+        'The hypothesis does NOT need to be correct. It needs to be STATED.\n\n' +
+        'CRITICAL: Never say "there could be several reasons..." — that is not a hypothesis.',
+      vcRule: '"Many candidates jump into a framework without having stated a hypothesis, which interviewers find ridiculous: how can you create a structure to test a hypothesis if you haven\'t stated one?" — Victor Cheng',
+      bcgExpects: [
+        '<strong>Hypothesis explicitly stated</strong> — "My hypothesis is X" — not vague exploration language like "I\'d like to look at..."',
+        '<strong>Directional and specific</strong> — points to where you believe the problem lives, not just "costs or revenues"',
+        '<strong>Testable</strong> — framed so it can be proven or disproven with data',
+        '<strong>Arbitrary is acceptable</strong> — if you have little information, say "I\'ll state an arbitrary hypothesis that costs have risen, which I\'ll test and revise as data comes in"',
+        '<strong>Leads naturally into the issue tree</strong> — "To test this hypothesis, I\'ll build a framework that..."',
+      ],
+      scoringCriteria:
+        '(1) Hypothesis explicitly stated — not vague exploration language? ' +
+        '(2) Directional — says where the problem likely is? ' +
+        '(3) Testable — can be proven or disproven with a specific piece of data? ' +
+        '(4) Signals the issue tree structure that follows?',
+    },
+    {
+      id: 'issue_tree',
+      icon: '🌳',
+      label: 'Build Issue Tree',
+      vcRef: 'VC Ch.9 — The Issue Tree + Ch.12–14 Frameworks',
       timeLimit: 120,
-      instruction: 'Do three things in sequence:\n1. State your hypothesis — what you believe the answer is before you prove it\n2. Present your MECE framework (3 buckets, each with its own hypothesis)\n3. Prioritise — which bucket you\'d investigate first and why',
+      instruction:
+        'Victor Cheng\'s Step 5: DECIDE, DRAW, AND COMMUNICATE your issue tree.\n\n' +
+        'Your tree must pass 3 validity tests:\n' +
+        '① HYPOTHESIS TEST: Does every branch directly test your stated hypothesis?\n' +
+        '② MECE TEST: Mutually Exclusive (no overlaps) + Collectively Exhaustive (no gaps)?\n' +
+        '③ CONCLUSIVENESS TEST: "If all branches turn out to be true, can I imagine the OPPOSITE of my hypothesis being true?" If yes, fix the tree.\n\n' +
+        'Use VC\'s 3 core frameworks:\n' +
+        '• Profitability: P = Revenue − Costs (use for margin/profit cases)\n' +
+        '• Business Situation: Customer · Product · Company · Competition (qualitative/strategic cases)\n' +
+        '• M&A: Strategic fit + Financial fit (acquisition cases)\n\n' +
+        'Rephrase each branch as a SUB-HYPOTHESIS — not "Costs" but "Variable costs have outpaced pricing power."',
+      vcRule: '"A framework is just an issue tree template. The ONLY reason you use a framework is to test a hypothesis. If you use a framework without a hypothesis, you will be rejected." — Victor Cheng',
       bcgExpects: [
-        '<strong>Hypothesis first, always</strong> — "My hypothesis is X because Y." Not "I\'d like to structure around..."',
-        '<strong>MECE framework</strong> — mutually exclusive (no overlaps), collectively exhaustive (no gaps). Each bucket named with a hypothesis, not just a category label.',
-        '<strong>Explicit prioritisation with rationale</strong> — "I\'d start with X because it\'s likely the biggest lever given Y"',
-        '<strong>Framework fits the case type</strong> — no generic 3C/4P unless it genuinely applies to this case',
+        '<strong>Every branch tied to the hypothesis</strong> — not generic "areas to look at." Ask: does each branch prove/disprove the hypothesis?',
+        '<strong>MECE</strong> — mutually exclusive: no overlapping buckets. Collectively exhaustive: no major factor missing. Math-based trees can be 100% MECE; conceptual trees aim to be as MECE as possible',
+        '<strong>Conclusiveness test passed</strong> — "If all these branches are true, I cannot imagine the opposite of my hypothesis being true"',
+        '<strong>Branches phrased as sub-hypotheses</strong> — "Revenue has declined due to volume loss, not pricing pressure" vs just "Revenue"',
+        '<strong>Explicit prioritisation with rationale</strong> — "I will test Branch 1 first because it is mathematically the largest potential driver given X"',
       ],
-      scoringCriteria: '(1) Hypothesis stated before any framework? (2) Is the framework MECE — no overlaps, no missing branches? (3) Each bucket has a hypothesis, not just a name? (4) Clear prioritisation with a reason?',
+      scoringCriteria:
+        '(1) Hypothesis test: each branch directly tests the stated hypothesis? ' +
+        '(2) MECE test: no overlapping branches, no major gap? ' +
+        '(3) Conclusiveness test: would finding all branches true conclusively prove the hypothesis? ' +
+        '(4) Sub-hypotheses: branches framed as testable sub-claims, not just category labels? ' +
+        '(5) Prioritisation: one branch called out with a specific rationale?',
     },
     {
-      id: 'analysis',
-      icon: '📊',
-      label: 'Priority Branch Analysis',
+      id: 'drill_down',
+      icon: '🔬',
+      label: 'Drill-Down Analysis',
+      vcRef: 'VC Ch.10 — Drill-Down + Ch.18 — How to Analyse',
       timeLimit: 150,
-      instruction: 'Go deep into your highest-priority branch:\n1. State the specific question this branch needs to answer\n2. Name the analysis you\'d run (decomposition / benchmarking / scenario analysis)\n3. Use the available data — do actual calculations\n4. Interpret every number: "This means..."',
+      instruction:
+        'Victor Cheng\'s analysis process: SEGMENT → ISOLATE → PROCESS OF ELIMINATION → BENCHMARK.\n\n' +
+        '① SEGMENT: "I\'d like to break this metric into its component parts." ' +
+        'Do NOT specify how — say it open-endedly and let the interviewer reveal the right pattern.\n\n' +
+        '② ISOLATE: Once you have sub-data, identify which sub-branch drives the problem. ' +
+        'Explicitly rule out what is NOT the problem: "This rules out X."\n\n' +
+        '③ BENCHMARK: Always compare a metric to TWO things — (a) its own history, (b) competitors. ' +
+        '"Is this good or bad? Compared to last year... compared to the industry..."\n\n' +
+        '④ MINI-SYNTHESIS when switching branches: Before moving on, synthesise what the current branch told you.\n\n' +
+        'REMEMBER: Total numbers lie. Averages lie. Segment everything.',
+      vcRule: '"Total numbers lie. Averages lie. Anytime you hear a total or average, assume it is misleading and segment it to understand what is really going on." — Victor Cheng',
       bcgExpects: [
-        '<strong>Name the specific analytical question</strong> — not "look at costs" but "is the cost increase driven by fixed cost deleveraging or variable cost inflation?"',
-        '<strong>Do the math</strong> — never hand-wave numbers. Decompose, calculate, compare.',
-        '"<strong>So what" for every number</strong> — data without interpretation is just noise',
-        '<strong>Know when to pivot</strong> — if the data clears a branch, say so and name where you\'d go next',
+        '<strong>Request segmentation without specifying how</strong> — "I\'d like to understand what drives this number" then stop talking. Let the interviewer reveal the segmentation pattern',
+        '<strong>Use process of elimination explicitly</strong> — "I can now rule out X because... so the problem must be in Y or Z"',
+        '<strong>Two benchmarks, always</strong> — compare every metric to (a) its own prior period AND (b) competitors or industry',
+        '<strong>Mini-synthesis before every branch switch</strong> — "The cost branch is not the primary driver. Specifically, fixed costs are stable and variable cost per unit is flat. This means the issue is entirely on the revenue side." Then switch.',
+        '<strong>Do the actual math</strong> — never hand-wave numbers. Decompose, calculate, state the implication.',
       ],
-      scoringCriteria: '(1) Specific analytical question defined for the branch? (2) Actual calculations done with case data? (3) Every number interpreted with a "so what"? (4) Clear conclusion on what the branch tells them?',
+      scoringCriteria:
+        '(1) Requested segmentation without specifying the pattern? ' +
+        '(2) Used process of elimination — explicitly ruled out branches? ' +
+        '(3) Compared metrics to historical AND competitive benchmark? ' +
+        '(4) Delivered mini-synthesis before switching to a new branch? ' +
+        '(5) Did the actual math accurately?',
     },
     {
       id: 'synthesis',
-      icon: '💡',
-      label: 'Final Recommendation',
+      icon: '🎯',
+      label: 'Top-Down Synthesis',
+      vcRef: 'VC Ch.11 — Synthesis + Ch.19 — How to Close',
       timeLimit: 90,
-      instruction: 'Deliver your final recommendation in 90 seconds using this exact BCG format:\nSituation (1 sentence) → Root Cause insight → Recommendation (lead with it) → 3 specific actions → Key risk',
+      instruction:
+        'Victor Cheng\'s closing format — the exact structure BCG partners use with CEOs:\n\n' +
+        '"[Recommendation] for [three reasons]:\n' +
+        'First, [supporting point 1].\n' +
+        'Second, [supporting point 2].\n' +
+        'Third, [supporting point 3].\n' +
+        'And those are the three reasons why I recommend [same recommendation]."\n\n' +
+        'RULES:\n' +
+        '• Recommendation ALWAYS comes FIRST — never data, never context, never caveats\n' +
+        '• Exactly 3 supporting points — never more\n' +
+        '• Restate the recommendation at the end\n' +
+        '• Action-oriented: "The client should shut down the Bangalore plant" not "there are profitability challenges"\n\n' +
+        'If you ran out of time: "Given more time, I would also analyse X to address the remaining uncertainty around Y."',
+      vcRule: '"Most people use a bottom-up summary intuitively — listing everything they did. This is NOT synthesis. Synthesis always leads with the conclusion. First sentence = the answer." — Victor Cheng',
       bcgExpects: [
-        '<strong>Lead with the recommendation</strong> — first sentence = the answer. Not findings, not caveats — the answer.',
-        '<strong>Single driving insight</strong> — the root cause that makes everything else make sense. Not a list of findings.',
-        '<strong>Three specific, sequenced actions</strong> — not "improve operations" but "reduce SKU count from 800 to 200 which our analysis shows recovers 60% of the margin gap"',
-        '<strong>One honest risk</strong> — shows judgment. Don\'t sanitise. State what would make you wrong.',
+        '<strong>Recommendation in the FIRST sentence</strong> — not analysis recap, not context, not caveats — the answer',
+        '<strong>Exactly 3 supporting points</strong> — force yourself to prioritise. Never list 4 or 5 "reasons"',
+        '<strong>Action-oriented recommendation</strong> — specific verb + specific subject: "shut down," "invest ₹200Cr in," "exit the market"',
+        '<strong>Conclusion restated at the end</strong> — "And for these three reasons, I recommend [exact same action]"',
+        '<strong>Risk or next step as add-on</strong> — after restating conclusion, optionally: "The key risk is X, and given more time I would validate Y"',
       ],
-      scoringCriteria: '(1) Led with recommendation (not analysis recap)? (2) Named a single root cause insight? (3) Actions are specific, not generic? (4) Risk acknowledged honestly?',
+      scoringCriteria:
+        '(1) Recommendation stated FIRST — not data or summary? ' +
+        '(2) Exactly 3 supporting points — not 2, not 4+? ' +
+        '(3) Supporting points logically prove the recommendation? ' +
+        '(4) Conclusion explicitly restated at the end? ' +
+        '(5) Action-oriented — specific, not vague?',
     },
   ];
 
@@ -90,31 +176,39 @@ window.StepCoach = (function() {
     const el = document.getElementById('coach-case-select');
     if (!el) return;
     const types = [
-      { type: 'profitability', icon: '📊', label: 'Profitability' },
-      { type: 'market_entry',  icon: '🌍', label: 'Market Entry'  },
-      { type: 'ma',            icon: '🤝', label: 'M&A'           },
-      { type: 'growth',        icon: '🚀', label: 'Growth'        },
-      { type: 'operations',    icon: '⚙️', label: 'Operations'    },
-      { type: 'random',        icon: '🎲', label: 'Random'        },
+      { type: 'profitability', icon: '📊', label: 'Profitability', vcFramework: 'P = R − C tree' },
+      { type: 'market_entry',  icon: '🌍', label: 'Market Entry',  vcFramework: 'Business Situation (CPCC)' },
+      { type: 'ma',            icon: '🤝', label: 'M&A',           vcFramework: 'M&A = Strategic + Financial fit' },
+      { type: 'growth',        icon: '🚀', label: 'Growth',        vcFramework: 'Business Situation (CPCC)' },
+      { type: 'operations',    icon: '⚙️', label: 'Operations',    vcFramework: 'Value Chain + Profitability' },
+      { type: 'random',        icon: '🎲', label: 'Random',        vcFramework: 'All frameworks' },
     ];
     el.innerHTML = `
       <div class="coach-select-intro">
-        <h2 class="coach-select-title">🎓 Step Coach — Tutor Mode</h2>
-        <p class="coach-select-sub">Practice one step at a time. After each step Claude shows you the model answer and coaches you to perfection before you advance.</p>
+        <h2 class="coach-select-title">🎓 Step Coach — Victor Cheng Method</h2>
+        <p class="coach-select-sub">Practice each of Victor Cheng's 5 steps one at a time. After every step, see the model answer, the VC rule you should internalise, and the exact words to use next time.</p>
         <div class="coach-mode-pills">
-          <span class="coach-mode-pill">📖 Learn → ⚡ Apply → ✅ Model Answer → ⚡ Fix → ↩ Retry</span>
+          <span class="coach-mode-pill">🔍 Stall & Clarify → 💡 Hypothesis → 🌳 Issue Tree → 🔬 Drill-Down → 🎯 Synthesis</span>
+        </div>
+        <div class="coach-vc-note">
+          <span class="coach-vc-badge">📖 Based on</span>
+          <span class="coach-vc-title">Case Interview Secrets — Victor Cheng</span>
         </div>
       </div>
       <div class="coach-type-grid">
         ${types.map(t => `
           <button class="coach-type-btn" onclick="(()=>{
-            const cases = ${t.type === 'random' ? 'window.CASES' : `(window.CASES||[]).filter(c=>c.type==='${t.type}')`} || [];
-            if(!cases.length){showToast('No cases loaded','error');return;}
-            const pick = cases[Math.floor(Math.random()*cases.length)];
+            const allCases = window.CASES || [];
+            const filtered = ${t.type === 'random' ? 'allCases' : `allCases.filter(c=>c.type==='${t.type}')`};
+            if(!filtered.length){showToast('No cases loaded','error');return;}
+            const pick = filtered[Math.floor(Math.random()*filtered.length)];
             StepCoach.startCoach(pick);
           })()">
             <span class="coach-type-icon">${t.icon}</span>
-            <span>${t.label}</span>
+            <div>
+              <div style="font-weight:600">${t.label}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:3px">${t.vcFramework}</div>
+            </div>
           </button>
         `).join('')}
       </div>
@@ -138,6 +232,12 @@ window.StepCoach = (function() {
 
       <div class="coach-scroll-body">
 
+        <!-- VC Rule Banner -->
+        <div class="coach-vc-rule-banner">
+          <span class="coach-vc-chip">${step.vcRef}</span>
+          <p class="coach-vc-rule-text">${step.vcRule}</p>
+        </div>
+
         <!-- Case context -->
         <details class="coach-context-details">
           <summary class="coach-context-summary">📋 Case: ${S.caseObj.title} <span class="coach-expand-hint">click to expand</span></summary>
@@ -156,7 +256,7 @@ window.StepCoach = (function() {
           <div class="coach-step-badge">${step.icon} Step ${S.stepIdx + 1} of ${STEPS.length} — ${step.label}</div>
           <div class="coach-step-instruction">${step.instruction.replace(/\n/g, '<br>')}</div>
           <div class="coach-expects">
-            <div class="coach-expects-hdr">BCG expects at this step:</div>
+            <div class="coach-expects-hdr">What Victor Cheng's interviewers look for:</div>
             <ul>${step.bcgExpects.map(e => `<li>${e}</li>`).join('')}</ul>
           </div>
         </div>
@@ -169,7 +269,7 @@ window.StepCoach = (function() {
           </div>
           <div class="coach-interim-wrap">
             <textarea id="coach-input" class="coach-textarea"
-              placeholder="Type your response, or click Speak…"></textarea>
+              placeholder="Type or speak your response…"></textarea>
             <span id="coach-interim" class="coach-interim-text"></span>
           </div>
           <div class="coach-respond-actions">
@@ -265,7 +365,7 @@ window.StepCoach = (function() {
     if (area) area.innerHTML = `
       <div class="coach-loading">
         <div class="debrief-spinner-dots"><span></span><span></span><span></span></div>
-        <p>Claude Sonnet is reviewing your response…</p>
+        <p>Claude Sonnet is reviewing against Victor Cheng's criteria…</p>
       </div>`;
 
     try {
@@ -279,35 +379,43 @@ window.StepCoach = (function() {
 
   async function _scoreStep(answer) {
     const step = STEPS[S.stepIdx];
-    const msg = `Coach this BCG case interview step response. You are in TUTOR mode — openly share the ideal answer and exact coaching. Cite the candidate's actual words.
+
+    const msg =
+`You are a BCG senior partner coaching a candidate using VICTOR CHENG'S methodology from "Case Interview Secrets."
+Evaluate the response strictly against Cheng's criteria. Cite the candidate's actual words as evidence.
 
 CASE: ${S.caseObj.title}
+CASE TYPE: ${S.caseObj.type} | ${S.caseObj.industry}
 CONTEXT: ${S.caseObj.context}
 KEY DATA: ${JSON.stringify(S.caseObj.keyData || {})}
 HIDDEN INSIGHT: ${S.caseObj.hiddenInsight || 'Not specified'}
+VC FRAMEWORK HINT: ${S.caseObj.suggestedFramework || 'Not specified'}
 
-STEP: ${step.label}
-INSTRUCTION GIVEN: ${step.instruction}
-SCORING CRITERIA: ${step.scoringCriteria}
+STEP BEING COACHED: ${step.label} (${step.vcRef})
+STEP INSTRUCTION GIVEN TO CANDIDATE: ${step.instruction}
+SCORING CRITERIA (APPLY STRICTLY): ${step.scoringCriteria}
+
+VICTOR CHENG'S RULE FOR THIS STEP: ${step.vcRule}
 
 CANDIDATE'S RESPONSE:
 "${answer}"
 
-Return ONLY this JSON:
+Return ONLY this JSON — no other text:
 {
-  "score": <0-10 float>,
+  "score": <0-10 float, strict — 7.0+ only if VC criteria clearly met>,
   "verdict": "<Excellent | Strong | Good | Needs Work | Redo>",
-  "whatYouDid": "<2-3 sentences — what they actually did, quoting their specific words>",
-  "whatWasMissing": "<2-3 sentences — specific missing element, with evidence from their answer>",
-  "modelAnswer": "<Full ideal 4-6 sentence response a top BCG candidate would give for this step and this specific case — write it as if you are the candidate, using actual case data>",
-  "coachingRule": "<The single most important rule to internalise — crisp, memorable, universally applicable>",
-  "exactNextTime": "<Starts with 'Next time, open with:' — then the exact words they should say at the start of this step>"
+  "vcMistakesMade": ["<Which of VC's 10 common mistakes was made, if any — e.g. 'Mistake #1: No hypothesis stated'>"],
+  "whatYouDid": "<2-3 sentences quoting their specific words — what they actually did right>",
+  "whatWasMissing": "<2-3 sentences — specific VC criterion not met, with evidence from their answer>",
+  "modelAnswer": "<Full ideal response a top BCG candidate would give for THIS step and THIS specific case — write in first person as the candidate, use actual case data, mirror Victor Cheng's exact templates from the book>",
+  "vcRule": "<The single Victor Cheng rule most violated or most relevant — exact principle from the book>",
+  "exactNextTime": "<Starts with the literal first words the candidate should say — e.g. 'Next time, open with: My initial working hypothesis is...'>"
 }`;
 
     const resp = await callClaude(
       [{ role: 'user', content: msg }],
-      'You are a senior BCG India partner in tutor mode. Be specific, honest, cite evidence. Return only valid JSON.',
-      'claude-sonnet-4-6', 1500
+      'You are a strict BCG senior partner coaching with Victor Cheng\'s methodology. Return only valid JSON.',
+      'claude-sonnet-4-6', 1600
     );
     const match = resp.match(/\{[\s\S]*\}/);
     if (!match) throw new Error('Could not parse coaching response');
@@ -318,9 +426,16 @@ Return ONLY this JSON:
   function _renderFeedback(fb, answer) {
     const area = document.getElementById('coach-respond-area');
     if (!area) return;
+    const step   = STEPS[S.stepIdx];
     const isLast = S.stepIdx >= STEPS.length - 1;
     const col = fb.score >= 7 ? '#00c853' : fb.score >= 5 ? '#ff9800' : '#ef5350';
     const bg  = fb.score >= 7 ? 'rgba(0,200,83,0.07)' : fb.score >= 5 ? 'rgba(255,152,0,0.07)' : 'rgba(239,83,80,0.07)';
+    const mistakesHTML = (fb.vcMistakesMade || []).length
+      ? `<div class="coach-vc-mistakes">
+           <div class="coach-fb-lbl">⚠️ VC Common Mistakes Triggered</div>
+           <ul>${fb.vcMistakesMade.map(m => `<li>${m}</li>`).join('')}</ul>
+         </div>`
+      : '';
 
     area.innerHTML = `
       <div class="coach-fb-wrap">
@@ -329,9 +444,11 @@ Return ONLY this JSON:
           <div class="coach-score-num" style="color:${col}">${fb.score.toFixed(1)}<span class="coach-denom">/10</span></div>
           <div>
             <div class="coach-verdict" style="color:${col}">${fb.verdict}</div>
-            <div class="coach-step-sm">${STEPS[S.stepIdx].icon} ${STEPS[S.stepIdx].label}</div>
+            <div class="coach-step-sm">${step.icon} ${step.label} · ${step.vcRef}</div>
           </div>
         </div>
+
+        ${mistakesHTML}
 
         <div class="coach-your-ans">
           <div class="coach-fb-lbl">💬 What you said</div>
@@ -344,23 +461,23 @@ Return ONLY this JSON:
             <p>${fb.whatYouDid}</p>
           </div>
           <div class="coach-fb-card coach-red">
-            <div class="coach-fb-lbl">🔧 What was missing</div>
+            <div class="coach-fb-lbl">🔧 What was missing (VC criteria)</div>
             <p>${fb.whatWasMissing}</p>
           </div>
         </div>
 
         <div class="coach-model-card">
-          <div class="coach-fb-lbl">💡 Model answer — what a top candidate says</div>
+          <div class="coach-fb-lbl">💡 Model answer — what a top candidate says (Victor Cheng style)</div>
           <p class="coach-model-text">"${fb.modelAnswer}"</p>
         </div>
 
         <div class="coach-rule-card">
-          <div class="coach-fb-lbl">🧠 Rule to internalise</div>
-          <p class="coach-rule-text">${fb.coachingRule}</p>
+          <div class="coach-fb-lbl">📖 Victor Cheng rule to internalise</div>
+          <p class="coach-rule-text">${fb.vcRule}</p>
         </div>
 
         <div class="coach-nexttime-card">
-          <div class="coach-fb-lbl">⚡ Exact words — next time</div>
+          <div class="coach-fb-lbl">⚡ Exact words — use these next time</div>
           <p class="coach-nexttime-text">${fb.exactNextTime}</p>
         </div>
 
@@ -385,13 +502,27 @@ Return ONLY this JSON:
     const avg = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
     const avgCol = parseFloat(avg) >= 7 ? '#00c853' : parseFloat(avg) >= 5 ? '#ff9800' : '#ef5350';
 
+    // Collect all VC mistakes across steps
+    const allMistakes = S.results.flatMap(r => r.feedback?.vcMistakesMade || []);
+    const uniqueMistakes = [...new Set(allMistakes)];
+
     el.innerHTML = `
       ${_progressHTML()}
       <div class="coach-scroll-body">
         <div class="coach-summary-header">
           <div class="coach-sum-avg" style="color:${avgCol}">${avg}<span class="coach-denom">/10</span></div>
-          <div class="coach-sum-label">Average across all ${STEPS.length} steps</div>
+          <div class="coach-sum-label">Average across all ${STEPS.length} Victor Cheng steps</div>
         </div>
+
+        ${uniqueMistakes.length ? `
+          <div class="coach-vc-mistakes-summary">
+            <div class="coach-fb-lbl">⚠️ Victor Cheng Mistakes to Fix</div>
+            <ul>${uniqueMistakes.map(m => `<li>${m}</li>`).join('')}</ul>
+          </div>` : `
+          <div class="coach-vc-mistakes-summary" style="border-color:#00c853;background:rgba(0,200,83,0.07)">
+            <div class="coach-fb-lbl" style="color:#00c853">✅ No common VC mistakes flagged!</div>
+          </div>`}
+
         <div class="coach-sum-list">
           ${S.results.map(r => {
             const step = STEPS.find(s => s.id === r.stepId) || {};
@@ -399,9 +530,9 @@ Return ONLY this JSON:
             const col = sc >= 7 ? '#00c853' : sc >= 5 ? '#ff9800' : '#ef5350';
             return `
               <div class="coach-sum-row">
-                <div class="coach-sum-step-name">${step.icon || ''} ${step.label || r.stepId}</div>
+                <div class="coach-sum-step-name">${step.icon || ''} ${step.label || r.stepId} <span style="font-size:11px;color:var(--text-muted)">${step.vcRef||''}</span></div>
                 <div class="coach-sum-score" style="color:${col}">${sc.toFixed(1)}/10 — ${r.feedback?.verdict || ''}</div>
-                <div class="coach-sum-rule">🧠 ${r.feedback?.coachingRule || ''}</div>
+                <div class="coach-sum-rule">📖 ${r.feedback?.vcRule || ''}</div>
                 <div class="coach-sum-fix">⚡ ${r.feedback?.exactNextTime || ''}</div>
               </div>`;
           }).join('')}
