@@ -315,38 +315,89 @@ window.showFocusBanner = function() {
 
 // ── Case History Repository ────────────────────────────────────────────────────
 window.renderHistory = function() {
-  const sessions = Storage.getSessions();
+  const sessions      = Storage.getSessions();
+  const coachSessions = Storage.getCoachSessions ? Storage.getCoachSessions() : [];
   const container = document.getElementById('history-list');
   if (!container) return;
 
+  container.innerHTML = `
+    <div class="hist-tabs">
+      <button class="hist-tab active" id="hist-tab-interview" onclick="window.showHistoryTab('interview')">
+        🎯 Interview Sessions <span class="hist-tab-count">${sessions.length}</span>
+      </button>
+      <button class="hist-tab" id="hist-tab-coach" onclick="window.showHistoryTab('coach')">
+        🎓 Step Coach Sessions <span class="hist-tab-count">${coachSessions.length}</span>
+      </button>
+    </div>
+    <div id="hist-pane-interview"></div>
+    <div id="hist-pane-coach" style="display:none;"></div>`;
+
+  // ── Interview pane ───────────────────────────────────────────────────────
+  const intPane = document.getElementById('hist-pane-interview');
   if (sessions.length === 0) {
-    container.innerHTML = '<p class="empty-state" style="padding:40px;text-align:center;">No sessions yet. Complete a case to see your history here.</p>';
-    return;
+    intPane.innerHTML = '<p class="empty-state" style="padding:40px;text-align:center;">No interview sessions yet. Complete a full case to see history here.</p>';
+  } else {
+    const verdictColors = { 'Strong Hire':'#00c853','Hire':'#00a651','Borderline':'#ff9800','No Hire':'#ef5350' };
+    const typeIcons = { profitability:'📊', market_entry:'🌍', ma:'🤝', growth:'🚀', operations:'⚙️' };
+    const dims = ['structuring','analytics','synthesis','communication'];
+    intPane.innerHTML = sessions.map((s, idx) => {
+      const date   = new Date(s.timestamp).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+      const time   = new Date(s.timestamp).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+      const vColor = verdictColors[s.verdict] || '#888';
+      return `
+        <div class="history-row" onclick="openTranscript(${idx})">
+          <div class="history-icon">${typeIcons[s.caseType] || '📋'}</div>
+          <div class="history-info">
+            <div class="history-title">${s.caseTitle}</div>
+            <div class="history-meta">${date} · ${time} · ${s.durationMinutes || '—'} min · ${s.caseType?.replace('_',' ')}</div>
+          </div>
+          <div class="history-dim-scores">
+            ${dims.map(d => `<div class="dim-pill" title="${d}">${d.slice(0,1).toUpperCase()} <strong>${s.scores?.[d]?.toFixed(1) ?? '—'}</strong></div>`).join('')}
+          </div>
+          <div class="history-overall" style="color:${s.overall >= 7 ? '#00a651' : s.overall >= 5 ? '#ff9800' : '#ef5350'}">${s.overall?.toFixed(1) ?? '—'}</div>
+          <div class="history-verdict" style="color:${vColor}">${s.verdict || '—'}</div>
+          <div class="history-arrow">›</div>
+        </div>`;
+    }).join('');
   }
 
-  const verdictColors = { 'Strong Hire':'#00c853','Hire':'#00a651','Borderline':'#ff9800','No Hire':'#ef5350' };
-  const typeIcons = { profitability:'📊', market_entry:'🌍', ma:'🤝', growth:'🚀', operations:'⚙️' };
+  // ── Coach pane ───────────────────────────────────────────────────────────
+  const coachPane = document.getElementById('hist-pane-coach');
+  if (coachSessions.length === 0) {
+    coachPane.innerHTML = '<p class="empty-state" style="padding:40px;text-align:center;">No Step Coach sessions yet. Run through the 5 steps in Step Coach to see history here.</p>';
+  } else {
+    const typeIcons = { profitability:'📊', market_entry:'🌍', ma:'🤝', growth:'🚀', operations:'⚙️' };
+    coachPane.innerHTML = coachSessions.map(cs => {
+      const date = new Date(cs.timestamp).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+      const time = new Date(cs.timestamp).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+      const avgCol = cs.avgScore >= 7 ? '#00c853' : cs.avgScore >= 5 ? '#ff9800' : '#ef5350';
+      const stepPills = (cs.stepResults || []).map(r => {
+        const col = r.score >= 7 ? '#00c853' : r.score >= 5 ? '#ff9800' : '#ef5350';
+        return `<div class="coach-hist-step-pill" title="${r.label}" style="border-color:${col};color:${col}">${r.icon} ${r.score.toFixed(1)}</div>`;
+      }).join('');
+      const mistakes = cs.vcMistakes?.length ? `<div class="coach-hist-mistakes">⚠️ ${cs.vcMistakes.length} VC mistake${cs.vcMistakes.length > 1 ? 's' : ''}: ${cs.vcMistakes.slice(0,2).join(' · ')}${cs.vcMistakes.length > 2 ? ' …' : ''}</div>` : `<div class="coach-hist-mistakes" style="color:#00c853">✅ No VC mistakes</div>`;
+      return `
+        <div class="coach-hist-row">
+          <div class="history-icon">${typeIcons[cs.caseType] || '🎓'}</div>
+          <div class="coach-hist-info">
+            <div class="history-title">${cs.caseTitle}</div>
+            <div class="history-meta">${date} · ${time} · Step Coach</div>
+            <div class="coach-hist-step-pills">${stepPills}</div>
+            ${mistakes}
+          </div>
+          <div class="history-overall" style="color:${avgCol}">${cs.avgScore.toFixed(1)}<span style="font-size:11px;color:#5a7054">/10</span></div>
+        </div>`;
+    }).join('');
+  }
+};
 
-  container.innerHTML = sessions.map((s, idx) => {
-    const date = new Date(s.timestamp).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
-    const time = new Date(s.timestamp).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
-    const vColor = verdictColors[s.verdict] || '#888';
-    const dims = ['structuring','analytics','synthesis','communication'];
-    return `
-      <div class="history-row" onclick="openTranscript(${idx})">
-        <div class="history-icon">${typeIcons[s.caseType] || '📋'}</div>
-        <div class="history-info">
-          <div class="history-title">${s.caseTitle}</div>
-          <div class="history-meta">${date} · ${time} · ${s.durationMinutes || '—'} min · ${s.caseType?.replace('_',' ')}</div>
-        </div>
-        <div class="history-dim-scores">
-          ${dims.map(d => `<div class="dim-pill" title="${d}">${d.slice(0,1).toUpperCase()} <strong>${s.scores?.[d]?.toFixed(1) ?? '—'}</strong></div>`).join('')}
-        </div>
-        <div class="history-overall" style="color:${s.overall >= 7 ? '#00a651' : s.overall >= 5 ? '#ff9800' : '#ef5350'}">${s.overall?.toFixed(1) ?? '—'}</div>
-        <div class="history-verdict" style="color:${vColor}">${s.verdict || '—'}</div>
-        <div class="history-arrow">›</div>
-      </div>`;
-  }).join('');
+window.showHistoryTab = function(tab) {
+  document.getElementById('hist-tab-interview')?.classList.toggle('active', tab === 'interview');
+  document.getElementById('hist-tab-coach')?.classList.toggle('active', tab === 'coach');
+  const ip = document.getElementById('hist-pane-interview');
+  const cp = document.getElementById('hist-pane-coach');
+  if (ip) ip.style.display = tab === 'interview' ? '' : 'none';
+  if (cp) cp.style.display = tab === 'coach'     ? '' : 'none';
 };
 
 // Store current open session index for debrief generation

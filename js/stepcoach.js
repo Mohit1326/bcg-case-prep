@@ -506,6 +506,22 @@ Return ONLY this JSON — no other text:
     const allMistakes = S.results.flatMap(r => r.feedback?.vcMistakesMade || []);
     const uniqueMistakes = [...new Set(allMistakes)];
 
+    // ── Persist to Step Coach history ─────────────────────────────────────
+    try {
+      Storage.saveCoachSession({
+        id: 'coach_' + Date.now(),
+        timestamp: Date.now(),
+        caseTitle:   S.caseObj?.title || 'Unknown Case',
+        caseType:    S.caseObj?.type  || 'unknown',
+        avgScore:    parseFloat(avg)  || 0,
+        stepResults: S.results.map(r => {
+          const step = STEPS.find(st => st.id === r.stepId) || {};
+          return { stepId: r.stepId, label: step.label || r.stepId, icon: step.icon || '', score: r.feedback?.score || 0, verdict: r.feedback?.verdict || '' };
+        }),
+        vcMistakes: uniqueMistakes,
+      });
+    } catch(e) { /* silent */ }
+
     el.innerHTML = `
       ${_progressHTML()}
       <div class="coach-scroll-body">

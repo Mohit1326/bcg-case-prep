@@ -802,3 +802,183 @@ html, body { height: 100%; font-family: 'Inter', system-ui, -apple-system, sans-
   0%, 100% { opacity: 0.7; }
   50%       { opacity: 1;   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* ─── History — Tab Switcher ─────────────────────────────────────────────── */
+.hist-tabs {
+  display: flex; gap: 8px; margin-bottom: 20px;
+  border-bottom: 1px solid rgba(0,166,81,0.12); padding-bottom: 12px;
+}
+.hist-tab {
+  background: #243320; border: 1px solid rgba(0,166,81,0.15); color: #8fa887;
+  padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 13px;
+  font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+}
+.hist-tab.active  { background: rgba(0,166,81,0.15); border-color: rgba(0,166,81,0.4); color: #00a651; }
+.hist-tab:hover:not(.active) { border-color: rgba(0,166,81,0.3); color: #c8d8c4; }
+.hist-tab-count   { background: rgba(0,166,81,0.15); color: #00a651; border-radius: 10px; padding: 1px 7px; font-size: 11px; }
+
+/* ─── Coach History Rows ─────────────────────────────────────────────────── */
+.coach-hist-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  background: #1e2d1a; border: 1px solid rgba(0,166,81,0.1); border-radius: 12px;
+  padding: 16px 18px; margin-bottom: 10px; cursor: default; transition: border-color 0.2s;
+}
+.coach-hist-row:hover { border-color: rgba(0,166,81,0.25); }
+.coach-hist-info      { flex: 1; min-width: 0; }
+.coach-hist-step-pills { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 4px; }
+.coach-hist-step-pill  {
+  border: 1px solid; border-radius: 6px; padding: 2px 8px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.coach-hist-mistakes   { font-size: 11px; color: #5a7054; margin-top: 2px; }
+
+/* ─── Drill Picker Modal ─────────────────────────────────────────────────── */
+.drill-picker-modal  { max-width: 560px; }
+.drill-picker-desc   { font-size: 12px; color: #8fa887; margin-top: 4px; }
+.drill-picker-body   { padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 10px; max-height: 70vh; overflow-y: auto; }
+.drill-picker-random-btn {
+  display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+  background: rgba(0,166,81,0.12); border: 1px dashed rgba(0,166,81,0.4);
+  border-radius: 10px; color: #00a651; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; text-align: left;
+}
+.drill-picker-random-btn:hover { background: rgba(0,166,81,0.2); border-color: #00a651; }
+.drill-picker-or     { text-align: center; font-size: 11px; color: #3d5238; margin: 2px 0; }
+.drill-picker-card   {
+  background: #243320; border: 1px solid rgba(0,166,81,0.12); border-radius: 10px;
+  padding: 14px 16px; cursor: pointer; transition: all 0.2s;
+}
+.drill-picker-card:hover { border-color: rgba(0,166,81,0.4); background: #2a3d26; }
+.drill-picker-card-hdr   { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+.drill-picker-card-title { font-size: 14px; font-weight: 600; color: #e8f0e4; flex: 1; }
+.drill-picker-card-time  { font-size: 11px; color: #5a7054; white-space: nowrap; }
+.drill-picker-card-meta  { font-size: 11px; color: #5a7054; margin-bottom: 4px; }
+.drill-picker-card-watch { font-size: 11px; color: #ff9800; margin-top: 4px; }
+
+/* ─── Coach Tools Bar ────────────────────────────────────────────────────── */
+.coach-tools-divider { text-align: center; font-size: 12px; color: #3d5238; margin-bottom: 14px; letter-spacing: 0.5px; }
+.coach-tools-grid    { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.coach-tool-btn      {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+  background: #1e2d1a; border: 1px solid rgba(0,166,81,0.15); border-radius: 12px;
+  cursor: pointer; text-align: left; transition: all 0.2s;
+}
+.coach-tool-btn:hover   { border-color: rgba(0,166,81,0.4); background: #243320; }
+.coach-tool-icon        { font-size: 22px; flex-shrink: 0; }
+.coach-tool-title       { font-size: 13px; font-weight: 600; color: #e8f0e4; }
+.coach-tool-sub         { font-size: 11px; color: #5a7054; margin-top: 2px; line-height: 1.4; }
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* ─── Issue Tree Builder Modal ───────────────────────────────────────────── */
+.it-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1200; display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px; overflow-y: auto; }
+.it-modal         { background: #1a2818; border: 1px solid rgba(0,166,81,0.25); border-radius: 18px; width: 100%; max-width: 800px; display: flex; flex-direction: column; }
+.it-modal-hdr     { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px 16px; border-bottom: 1px solid rgba(0,166,81,0.12); }
+.it-badge         { display: inline-block; background: rgba(0,166,81,0.15); color: #00a651; border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; }
+.it-modal-title   { font-size: 18px; font-weight: 700; color: #e8f0e4; }
+.it-close-btn     { background: #243320; border: 1px solid rgba(0,166,81,0.2); color: #8fa887; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; flex-shrink: 0; }
+.it-close-btn:hover { background: #2e3d2a; }
+.it-body          { padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+
+/* ─── Phase pill ─────────────────────────────────────────────────────────── */
+.it-phase-pill    { background: rgba(0,166,81,0.1); border: 1px solid rgba(0,166,81,0.25); color: #00a651; border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 700; align-self: flex-start; }
+
+/* ─── Cards ──────────────────────────────────────────────────────────────── */
+.it-intro-text    { font-size: 13px; color: #8fa887; line-height: 1.7; }
+.it-vc-ref        { background: rgba(0,166,81,0.07); border-left: 3px solid rgba(0,166,81,0.4); padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 12px; color: #5a9050; margin-top: 10px; }
+.it-context-card  { background: #243320; border: 1px solid rgba(0,166,81,0.15); border-radius: 12px; padding: 18px; }
+.it-context-title { font-size: 15px; font-weight: 700; color: #e8f0e4; margin-bottom: 8px; }
+.it-context-body  { font-size: 13px; color: #c8d8c4; line-height: 1.7; margin: 0 0 10px; }
+.it-objective     { font-size: 12px; color: #8fa887; border-top: 1px solid rgba(0,166,81,0.1); padding-top: 10px; }
+.it-hyp-card      { background: rgba(0,166,81,0.06); border: 1px solid rgba(0,166,81,0.2); border-radius: 12px; padding: 16px; }
+.it-hyp-label     { font-size: 11px; color: #00a651; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+.it-hyp-text      { font-size: 14px; color: #e8f0e4; font-style: italic; line-height: 1.6; margin: 0 0 8px; }
+.it-hyp-note      { font-size: 12px; color: #8fa887; line-height: 1.6; }
+.it-hyp-mini      { font-size: 12px; color: #8fa887; font-style: italic; margin-top: 3px; }
+.it-vc-rule-box   { background: rgba(255,152,0,0.06); border: 1px solid rgba(255,152,0,0.2); border-radius: 8px; padding: 12px 14px; font-size: 12px; color: #c8a05a; line-height: 1.6; }
+.it-context-mini  { background: #243320; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #e8f0e4; }
+
+/* ─── Instruction ────────────────────────────────────────────────────────── */
+.it-instruction   { font-size: 13px; color: #c8d8c4; line-height: 1.7; }
+.it-tip           { display: block; margin-top: 8px; font-size: 12px; color: #5a7054; background: rgba(0,166,81,0.05); border-radius: 6px; padding: 6px 10px; }
+
+/* ─── Textarea ───────────────────────────────────────────────────────────── */
+.it-textarea      { width: 100%; min-height: 120px; background: #243320; border: 1px solid rgba(0,166,81,0.2); border-radius: 10px; color: #e8f0e4; font-size: 14px; padding: 12px 14px; line-height: 1.6; resize: vertical; font-family: inherit; box-sizing: border-box; }
+.it-textarea:focus { outline: none; border-color: rgba(0,166,81,0.5); }
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+.it-primary-btn   { background: #00a651; color: #fff; border: none; border-radius: 10px; padding: 12px 24px; font-size: 14px; font-weight: 700; cursor: pointer; align-self: flex-end; transition: background 0.2s; }
+.it-primary-btn:hover { background: #00c853; }
+.it-secondary-btn { background: #243320; border: 1px solid rgba(0,166,81,0.3); color: #8fa887; border-radius: 10px; padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.it-secondary-btn:hover { border-color: rgba(0,166,81,0.6); color: #c8d8c4; }
+.it-actions       { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* ─── Score badge ────────────────────────────────────────────────────────── */
+.it-score-badge   { display: flex; align-items: center; gap: 12px; border: 1px solid; border-radius: 12px; padding: 12px 18px; }
+.it-score-num     { font-size: 22px; font-weight: 800; }
+.it-score-verdict { font-size: 14px; font-weight: 600; }
+
+/* ─── Two-column layout ──────────────────────────────────────────────────── */
+.it-two-col       { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 600px) { .it-two-col { grid-template-columns: 1fr; } }
+.it-tree-panel    { background: #1e2d1a; border: 1px solid rgba(0,166,81,0.12); border-radius: 12px; padding: 14px 16px; }
+.it-tree-lbl      { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
+.it-your-lbl      { color: #8fa887; }
+.it-ideal-lbl     { color: #00a651; }
+.it-partial-tree-wrap { background: #1e2d1a; border: 1px solid rgba(0,166,81,0.1); border-radius: 12px; padding: 14px 16px; }
+.it-answer-text   { font-size: 13px; color: #c8d8c4; line-height: 1.7; margin: 0; }
+.it-ideal-answer  { color: #00c853; }
+
+/* ─── CSS Tree ───────────────────────────────────────────────────────────── */
+.it-tree, .it-ideal-tree { font-size: 13px; }
+.it-tree ul, .it-ideal-tree ul { list-style: none; padding-left: 18px; margin: 0; position: relative; }
+.it-tree ul::before, .it-ideal-tree ul::before {
+  content: ''; position: absolute; left: 6px; top: 0; bottom: 8px;
+  border-left: 1px solid rgba(0,166,81,0.25);
+}
+.it-tree li, .it-ideal-tree li {
+  position: relative; padding: 4px 0 2px 14px; color: #c8d8c4; line-height: 1.5;
+}
+.it-tree li::before, .it-ideal-tree li::before {
+  content: ''; position: absolute; left: 6px; top: 12px;
+  width: 12px; border-top: 1px solid rgba(0,166,81,0.25);
+}
+.it-tree-l1   { font-weight: 700; color: #e8f0e4 !important; }
+.it-tree-leaf { font-size: 12px; color: #8fa887 !important; }
+.it-ideal-tree li { color: #6db87c !important; }
+.it-ideal-tree .it-tree-l1 { color: #00c853 !important; }
+.it-tree-empty { font-size: 13px; color: #3d5238; font-style: italic; }
+
+/* ─── Feedback card ──────────────────────────────────────────────────────── */
+.it-fb-card   { display: flex; flex-direction: column; gap: 8px; }
+.it-fb-row    { font-size: 13px; line-height: 1.6; padding: 10px 14px; border-radius: 8px; }
+.it-fb-green  { background: rgba(0,200,83,0.06);  border-left: 3px solid rgba(0,200,83,0.4); color: #c8d8c4; }
+.it-fb-red    { background: rgba(239,83,80,0.06); border-left: 3px solid rgba(239,83,80,0.4); color: #c8d8c4; }
+.it-fb-orange { background: rgba(255,152,0,0.06); border-left: 3px solid rgba(255,152,0,0.4); color: #c8d8c4; }
+
+/* ─── Drilldown clue ─────────────────────────────────────────────────────── */
+.it-clue-card  { background: rgba(33,150,243,0.06); border: 1px solid rgba(33,150,243,0.25); border-radius: 10px; padding: 14px 16px; }
+.it-clue-label { font-size: 11px; color: #64b5f6; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+.it-clue-text  { font-size: 14px; color: #e8f0e4; font-style: italic; margin: 0; line-height: 1.6; }
+
+/* ─── Final comparison ───────────────────────────────────────────────────── */
+.it-avg-score   { display: flex; align-items: baseline; gap: 8px; }
+.it-avg-num     { font-size: 36px; font-weight: 800; }
+.it-avg-denom   { font-size: 18px; color: #5a7054; }
+.it-avg-label   { font-size: 13px; color: #8fa887; }
+.it-step-scores { display: flex; flex-direction: column; gap: 6px; }
+.it-step-row    { display: flex; justify-content: space-between; align-items: center; background: #1e2d1a; border: 1px solid rgba(0,166,81,0.1); border-radius: 8px; padding: 10px 14px; }
+.it-step-row-lbl   { font-size: 13px; color: #8fa887; }
+.it-step-row-score { font-size: 13px; font-weight: 700; }
+
+/* ─── Case selection grid ────────────────────────────────────────────────── */
+.it-case-grid       { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.it-case-card       { background: #243320; border: 1px solid rgba(0,166,81,0.15); border-radius: 12px; padding: 18px 16px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; }
+.it-case-card:hover { border-color: rgba(0,166,81,0.45); background: #2a3d26; }
+.it-case-type-badge { background: rgba(0,166,81,0.12); color: #00a651; border-radius: 6px; padding: 2px 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; align-self: flex-start; }
+.it-case-card-title { font-size: 14px; font-weight: 700; color: #e8f0e4; line-height: 1.4; }
+.it-case-card-ref   { font-size: 11px; color: #5a7054; }
+.it-case-card-cta   { font-size: 12px; color: #00a651; font-weight: 600; margin-top: 4px; }
+
+/* ─── Loading ────────────────────────────────────────────────────────────── */
+.it-loading { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 48px 24px; color: #8fa887; font-size: 14px; }

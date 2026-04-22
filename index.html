@@ -432,6 +432,40 @@
       <div id="coach-active" style="display:none;flex-direction:column;height:100%;overflow:hidden;">
         <!-- rendered by StepCoach engine -->
       </div>
+      <!-- Issue Tree Builder shortcut — shown below coach select -->
+      <div id="coach-tools-bar" style="padding:0 32px 32px;">
+        <div class="coach-tools-divider">— or practice a specific skill —</div>
+        <div class="coach-tools-grid">
+          <button class="coach-tool-btn" onclick="IssueTree.open()">
+            <span class="coach-tool-icon">🌳</span>
+            <div>
+              <div class="coach-tool-title">Issue Tree Builder</div>
+              <div class="coach-tool-sub">MECE structuring · drill-down · ideal tree comparison</div>
+            </div>
+          </button>
+          <button class="coach-tool-btn" onclick="Drills.openDrillModal('structuring')">
+            <span class="coach-tool-icon">🏗️</span>
+            <div>
+              <div class="coach-tool-title">Structuring Drills</div>
+              <div class="coach-tool-sub">Hypothesis · frameworks · 5-min micro practice</div>
+            </div>
+          </button>
+          <button class="coach-tool-btn" onclick="Drills.openDrillModal('analytics')">
+            <span class="coach-tool-icon">📊</span>
+            <div>
+              <div class="coach-tool-title">Analytics Drills</div>
+              <div class="coach-tool-sub">Segmentation · benchmarks · math pressure</div>
+            </div>
+          </button>
+          <button class="coach-tool-btn" onclick="Drills.openDrillModal('synthesis')">
+            <span class="coach-tool-icon">💡</span>
+            <div>
+              <div class="coach-tool-title">Synthesis Drills</div>
+              <div class="coach-tool-sub">Conclusion-first · 3-point structure · top-down</div>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- ── LIBRARY ── -->
@@ -634,7 +668,8 @@
 <script src="js/timer.js"></script>
 <script src="js/interview.js"></script>
 <script src="js/scoring.js"></script>
-<script src="js/drills.js?v=2"></script>
+<script src="js/drills.js?v=3"></script>
+<script src="js/issuetree.js"></script>
 <script src="js/stepcoach.js"></script>
 <script src="js/dashboard.js"></script>
 <script>

@@ -298,10 +298,76 @@ window.Drills = (function() {
   let _grammarVer    = 0;    // version counter — incremented on each new final chunk
 
   // ── Public: open a drill ──────────────────────────────────────────────────
+  // ── Drill Picker — show before random selection ───────────────────────────
   function openDrillModal(dimension) {
     const drills = LIBRARY[dimension] || [];
     if (!drills.length) { showToast('No drills for this dimension yet.', 'error'); return; }
+    _showPicker(dimension, drills);
+  }
+
+  const DIM_LABELS = { structuring:'Structuring', analytics:'Analytics', synthesis:'Synthesis', communication:'Communication' };
+  const DIM_ICONS  = { structuring:'🏗️', analytics:'📊', synthesis:'💡', communication:'🗣️' };
+  const DIM_DESCS  = {
+    structuring:   'Hypothesis-first thinking, MECE trees, VC frameworks',
+    analytics:     'Data segmentation, drill-down, math under pressure',
+    synthesis:     'Top-down recommendation, conclusion-first delivery',
+    communication: 'Signposting, confident language, avoiding recap mode',
+  };
+
+  function _vcChapRef(id) {
+    if (id.startsWith('vc_str'))  return 'VC Ch.8–14 · Structuring';
+    if (id.startsWith('vc_anal')) return 'VC Ch.10–18 · Analytics';
+    if (id.startsWith('vc_syn'))  return 'VC Ch.11–19 · Synthesis';
+    return 'VC Ch.25–26 · Communication';
+  }
+
+  function _showPicker(dimension, drills) {
+    document.getElementById('drill-picker-overlay')?.remove();
+    const overlay = document.createElement('div');
+    overlay.id = 'drill-picker-overlay';
+    overlay.className = 'drill-modal-overlay';
+    overlay.innerHTML = `
+      <div class="drill-modal drill-picker-modal">
+        <div class="drill-modal-hdr">
+          <div>
+            <span class="drill-dim-badge">${DIM_ICONS[dimension]} ${DIM_LABELS[dimension]} Drills</span>
+            <div class="drill-modal-title">Choose your practice focus</div>
+            <div class="drill-picker-desc">${DIM_DESCS[dimension]}</div>
+          </div>
+          <button class="drill-close-btn" onclick="document.getElementById('drill-picker-overlay')?.remove()">✕</button>
+        </div>
+        <div class="drill-picker-body">
+          <button class="drill-picker-random-btn" onclick="Drills._startRandom('${dimension}')">
+            🎲 <span>Random drill — surprise me</span>
+          </button>
+          <div class="drill-picker-or">— or pick a specific skill —</div>
+          ${drills.map(d => `
+            <div class="drill-picker-card" onclick="Drills._startSpecific('${d.id}','${dimension}')">
+              <div class="drill-picker-card-hdr">
+                <div class="drill-picker-card-title">${d.title}</div>
+                <div class="drill-picker-card-time">⏱ ${d.timeLimit}s</div>
+              </div>
+              <div class="drill-picker-card-meta">${_vcChapRef(d.id)}</div>
+              ${d.concept?.watch ? `<div class="drill-picker-card-watch">⚠️ ${d.concept.watch}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+  }
+
+  function _startRandom(dimension) {
+    document.getElementById('drill-picker-overlay')?.remove();
+    const drills = LIBRARY[dimension] || [];
     const pick = drills[Math.floor(Math.random() * drills.length)];
+    state = { drill: pick, dimension, phase: 'learn' };
+    _renderModal();
+  }
+
+  function _startSpecific(drillId, dimension) {
+    document.getElementById('drill-picker-overlay')?.remove();
+    const drills = LIBRARY[dimension] || [];
+    const pick = drills.find(d => d.id === drillId) || drills[0];
     state = { drill: pick, dimension, phase: 'learn' };
     _renderModal();
   }
@@ -673,5 +739,5 @@ Return ONLY this JSON — no other text:
     document.getElementById('drill-modal')?.remove();
   }
 
-  return { openDrillModal, close, _goApply, _submit, _toggleMic, _retry, _nextDrill };
+  return { openDrillModal, close, _goApply, _submit, _toggleMic, _retry, _nextDrill, _startRandom, _startSpecific };
 })();

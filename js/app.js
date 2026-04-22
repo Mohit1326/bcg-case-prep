@@ -21,7 +21,14 @@ window.Storage = {
     sessions.unshift(session);
     if (sessions.length > 50) sessions.length = 50;
     this.set('sessions', sessions);
-  }
+  },
+  getCoachSessions() { return this.get('coachSessions', []); },
+  saveCoachSession(session) {
+    const all = this.getCoachSessions();
+    all.unshift(session);
+    if (all.length > 30) all.length = 30;
+    this.set('coachSessions', all);
+  },
 };
 
 // ── Navigation ────────────────────────────────────────────────────────────────
